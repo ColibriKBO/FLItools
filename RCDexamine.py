@@ -174,7 +174,7 @@ testimages = nb_read_data(table)
 image1, image2 = split_images(testimages, hnumpix, vnumpix)
 
 lst = []
-for i in range(1000):
+for i in range(100):
 	lst.append(image1)
 
 # mm = cv2.createMergeMertens()
