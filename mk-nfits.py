@@ -4,17 +4,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 import numba as nb
-import cv2
+#import cv2
 
 from astropy.io import fits
 from sys import platform
-
-from bokeh.plotting import figure, show, output_file
-from bokeh.models import LinearColorMapper, ColorBar
-from bokeh.models.widgets import Slider, TextInput
-from bokeh.io import curdoc
-from bokeh.layouts import row, column
-from bokeh.models import ColumnDataSource
 
 @nb.njit(nb.uint16[::1](nb.uint8[::1]),fastmath=True,parallel=True)
 def nb_read_uint12(data_chunk):
@@ -66,13 +59,35 @@ def read_uint12(data_chunk): # From https://stackoverflow.com/questions/44735756
     snd_uint12 = ((mid_uint8 % 16) << 8) + lst_uint8
     return np.reshape(np.concatenate((fst_uint12[:, None], snd_uint12[:, None]), axis=1), 2 * fst_uint12.shape[0])
 
+def file_write(imagelist, fileformat, filename):
+	if fileformat == 'fits':
+		hdu = fits.PrimaryHDU(imagelist)
+		hdu.writeto(filename)
+
 def split_images(data,pix_h,pix_v):
+
 	interimg = np.reshape(data, [2*pix_v,pix_h])
+
+	# if imgain == 'logain':
+	# 	print('logain')
+	# 	image1 = interimg[::2]
+	# 	return image1
+	# elif imgain == 'higain':
+	# 	image2 = interimg[1::2]
+	# 	print('higain')
+	# 	return image2
+	# else:
+	# 	print('both')
+	# 	image1 = interimg[::2]
+	# 	image2 = interimg[1::2]
+	# 	return image1, image2
 
 	image1 = interimg[::2]
 	image2 = interimg[1::2]
 	return image1, image2
 		
+
+
 def readxbytes(numbytes):
 	for i in range(1):
 		data = fid.read(numbytes)
@@ -90,8 +105,10 @@ elif platform == 'win32':
 	print('Windows')
 
 imgain = 'logain'	# Which image/s to work with. Options: logain, higain, both
+imgfmt = 'fits'	# Output file format. Options: fits, vid
 
 # inputfile = "C:\\Users\\Mike\\Pictures\\Testing\\Stream\\test.rcd"
+
 
 filesize = os.path.getsize(inputfile)
 
@@ -155,6 +172,23 @@ testimages = nb_read_data(table)
 # 	image1, image2 = split_images(testimages, hnumpix, vnumpix)
 
 image1, image2 = split_images(testimages, hnumpix, vnumpix)
+imsmall = image1[0:2,0:2]
+imsmall[0,0] = 1
+imsmall[0,1] = 2
+imsmall[1,0] = 3
+imsmall[1,1] = 4
+
+lst = []
+for i in range(5):
+	lst.append(imsmall)
+
+# mm = cv2.createMergeMertens()
+# merge = mm.process((image1,image2))
+# print(np.max(merge))
+
+filestk = np.stack((lst))
+
+file_write(filestk, imgfmt, 'test.fits')
 
 print("# of pixels (width * height): " + str(hpix) + " * " + str(vpix))
 print("Binning factor: " + str(hbin) + " x " + str(vbin))
@@ -172,7 +206,7 @@ if (latraw & dirmask) != 0:
 else:
 	latdec = -1*(latraw & degmask) / degdivisor
 
-if (lonraw & dirmask) != 0:
+if (lonraw & dirmask) != 0:	
 	londec = (lonraw & degmask) / degdivisor
 else:
 	londec = -1*(lonraw & degmask) / degdivisor
@@ -182,40 +216,10 @@ print("Observation lat/long: " + str(latdec) + "N / " + str(londec) + "W")
 
 print("--- %s seconds ---" % (time.time() - start_time))
 
-# plt.imshow(image1, vmin=np.min(image1), vmax=np.mean(image1)*1.5)
-# plt.colorbar()
-# plt.tight_layout()
-# plt.show()
-
-img=image1
-
-color_mapper = LinearColorMapper(palette="Viridis256", low=img.min(), high=img.mean()*1.5)
-colorbar = ColorBar(color_mapper=color_mapper, location=(0,0))
-
-x = np.linspace(0, hnumpix)
-y = np.linspace(0, vnumpix)
-xx, yy = np.meshgrid(x, y)
-
-p = figure(tooltips=[("x", "$x"), ("y", "$y"), ("value", "@image")], match_aspect=True)
-p.x_range.range_padding = p.y_range.range_padding = 0
-
-highvalue = Slider(title="Max", value=img.mean()*1.5, start=img.min(), end=img.max(), step=100)
-
-
-
-# must give a vector of image data for image parameter
-p.image(image=[img], x=0, y=0, dw=hnumpix, dh=vnumpix, color_mapper=color_mapper)
-p.add_layout(colorbar, 'right')
-
-# Set up layouts and add to document
-inputs = column(highvalue)
-
-curdoc().add_root(row(inputs, p, width=800))
-curdoc().title = "Sliders"
-
-output_file("image.html", title="image.py example")
-
-show(p)  # open a browser
+plt.imshow(image1, vmin=np.min(image1), vmax=np.max(image1)*0.25)
+plt.colorbar()
+plt.tight_layout()
+plt.show()
 
 # Vid file header...
 # uint32  magic   four byte "magic number"
