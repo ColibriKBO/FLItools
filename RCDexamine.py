@@ -182,40 +182,40 @@ print("Observation lat/long: " + str(latdec) + "N / " + str(londec) + "W")
 
 print("--- %s seconds ---" % (time.time() - start_time))
 
-# plt.imshow(image1, vmin=np.min(image1), vmax=np.mean(image1)*1.5)
-# plt.colorbar()
-# plt.tight_layout()
-# plt.show()
+plt.imshow(image1, vmin=np.min(image1), vmax=np.mean(image1)*1.5)
+plt.colorbar()
+plt.tight_layout()
+plt.show()
 
-img=image1
+# img=image1
 
-color_mapper = LinearColorMapper(palette="Viridis256", low=img.min(), high=img.mean()*1.5)
-colorbar = ColorBar(color_mapper=color_mapper, location=(0,0))
+# color_mapper = LinearColorMapper(palette="Viridis256", low=img.min(), high=img.mean()*1.5)
+# colorbar = ColorBar(color_mapper=color_mapper, location=(0,0))
 
-x = np.linspace(0, hnumpix)
-y = np.linspace(0, vnumpix)
-xx, yy = np.meshgrid(x, y)
+# x = np.linspace(0, hnumpix)
+# y = np.linspace(0, vnumpix)
+# xx, yy = np.meshgrid(x, y)
 
-p = figure(tooltips=[("x", "$x"), ("y", "$y"), ("value", "@image")], match_aspect=True)
-p.x_range.range_padding = p.y_range.range_padding = 0
+# p = figure(tooltips=[("x", "$x"), ("y", "$y"), ("value", "@image")], match_aspect=True)
+# p.x_range.range_padding = p.y_range.range_padding = 0
 
-highvalue = Slider(title="Max", value=img.mean()*1.5, start=img.min(), end=img.max(), step=100)
+# highvalue = Slider(title="Max", value=img.mean()*1.5, start=img.min(), end=img.max(), step=100)
 
 
 
-# must give a vector of image data for image parameter
-p.image(image=[img], x=0, y=0, dw=hnumpix, dh=vnumpix, color_mapper=color_mapper)
-p.add_layout(colorbar, 'right')
+# # must give a vector of image data for image parameter
+# p.image(image=[img], x=0, y=0, dw=hnumpix, dh=vnumpix, color_mapper=color_mapper)
+# p.add_layout(colorbar, 'right')
 
-# Set up layouts and add to document
-inputs = column(highvalue)
+# # Set up layouts and add to document
+# inputs = column(highvalue)
 
-curdoc().add_root(row(inputs, p, width=800))
-curdoc().title = "Sliders"
+# curdoc().add_root(row(inputs, p, width=800))
+# curdoc().title = "Sliders"
 
-output_file("image.html", title="image.py example")
+# output_file("image.html", title="image.py example")
 
-show(p)  # open a browser
+# show(p)  # open a browser
 
 # Vid file header...
 # uint32  magic   four byte "magic number"
