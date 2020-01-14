@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 import numba as nb
-import cv2
+#import cv2
 
 from astropy.io import fits
 from sys import platform
@@ -47,6 +47,11 @@ def split_images(data,pix_h,pix_v,gain):
 
 	return image
 
+def file_write(imagelist, fileformat, file):
+	if fileformat == 'fits':
+		hdu = fits.PrimaryHDU(imagelist)
+		hdu.writeto(file)
+
 def computelatlong(lat,lon): # Calculate Latitude and Longitude
 	degdivisor = 600000.0
 	degmask = int(0x7fffffff)
@@ -71,91 +76,100 @@ def computelatlong(lat,lon): # Calculate Latitude and Longitude
 
 if platform == 'linux' or platform == 'linux2':
 	inputfile = "./first1.rcd"
-	inputdir = sys.argv[1]
 elif platform == 'win32':
 	inputfile = ".\\first1.rcd"
-	inputdir = sys.argv[1]
 
-start_time = time.time()
+if len(sys.argv) > 1:
+	inputdir = sys.argv[1]
 
 if len(sys.argv) > 2:
 	imgain = sys.argv[2]
 else:
 	imgain = 'low'	# Which image/s to work with. Options: low, high, both (still to implement)
 
-fid = open(inputfile, 'rb')
-fid.seek(0,0)
-magicnum = readxbytes(4) # 4 bytes ('Meta')
-fid.seek(81,0)
-hpixels = readxbytes(2) # Number of horizontal pixels
-fid.seek(83,0)
-vpixels = readxbytes(2) # Number of vertical pixels
-fid.seek(85,0)
-exptime = readxbytes(4) # Exposure time in 10.32us periods
-fid.seek(89,0)
-sensorcoldtemp = readxbytes(2)
-fid.seek(91,0)
-sensortemp = readxbytes(2)
-fid.seek(99,0)
-hbinning = readxbytes(1)
-fid.seek(100,0)
-vbinning = readxbytes(1)
-fid.seek(141,0)
-basetemp = readxbytes(2) # Sensor base temperature
-fid.seek(152,0)
-timestamp = readxbytes(30)
-fid.seek(182,0)
-lat = readxbytes(4)
-fid.seek(186,0)
-lon = readxbytes(4)
+start_time = time.time()
 
-hbin = int(binascii.hexlify(hbinning),16)
-vbin = int(binascii.hexlify(vbinning),16)
-hpix = int(binascii.hexlify(hpixels),16)
-vpix = int(binascii.hexlify(vpixels),16)
-hnumpix = int(hpix / hbin)
-vnumpix = int(vpix / vbin)
+globpath = inputdir + '*.rcd'
 
-# Load data portion of file
-fid.seek(246,0)
+for filename in glob.glob(globpath):
+	inputfile = os.path.splitext(filename)[0]
+    fitsfile = inputfile + '.fits'
 
-table = np.fromfile(fid, dtype=np.uint8)
-testimages = nb_read_data(table)
+	fid = open(filename, 'rb')
+	fid.seek(0,0)
+	magicnum = readxbytes(4) # 4 bytes ('Meta')
+	fid.seek(81,0)
+	hpixels = readxbytes(2) # Number of horizontal pixels
+	fid.seek(83,0)
+	vpixels = readxbytes(2) # Number of vertical pixels
+	fid.seek(85,0)
+	exptime = readxbytes(4) # Exposure time in 10.32us periods
+	fid.seek(89,0)
+	sensorcoldtemp = readxbytes(2)
+	fid.seek(91,0)
+	sensortemp = readxbytes(2)
+	fid.seek(99,0)
+	hbinning = readxbytes(1)
+	fid.seek(100,0)
+	vbinning = readxbytes(1)
+	fid.seek(141,0)
+	basetemp = readxbytes(2) # Sensor base temperature
+	fid.seek(152,0)
+	timestamp = readxbytes(30)
+	fid.seek(182,0)
+	lat = readxbytes(4)
+	fid.seek(186,0)
+	lon = readxbytes(4)
 
-image = split_images(testimages, hnumpix, vnumpix, imgain)
+	hbin = int(binascii.hexlify(hbinning),16)
+	vbin = int(binascii.hexlify(vbinning),16)
+	hpix = int(binascii.hexlify(hpixels),16)
+	vpix = int(binascii.hexlify(vpixels),16)
+	hnumpix = int(hpix / hbin)
+	vnumpix = int(vpix / vbin)
 
-if imgain == 'both':
-	image1 = split_images(testimages, hnumpix, vnumpix, 'low')
-	image2 = split_images(testimages, hnumpix, vnumpix, 'high')
+	# Load data portion of file
+	fid.seek(246,0)
 
-image = split_images(testimages, hnumpix, vnumpix, imgain)
+	table = np.fromfile(fid, dtype=np.uint8)
+	testimages = nb_read_data(table)
 
-latitude, longitude = computelatlong(lat,lon)
+	image = split_images(testimages, hnumpix, vnumpix, imgain)
 
-print("Observation lat/long: " + str(latitude) + "N / " + str(longitude) + "W")
+	if imgain == 'both':
+		image1 = split_images(testimages, hnumpix, vnumpix, 'low')
+		image2 = split_images(testimages, hnumpix, vnumpix, 'high')
+
+	image = split_images(testimages, hnumpix, vnumpix, imgain)
+
+	file_write(image, 'fits', fitsfile)
+
+# latitude, longitude = computelatlong(lat,lon)
+
+# print("Observation lat/long: " + str(latitude) + "N / " + str(longitude) + "W")
 
 print("--- %s seconds ---" % (time.time() - start_time))
 
-if imgain == 'both':
-	fig, ax = plt.subplots(2, figsize=(6,12))
-	ax[0].imshow(image1, vmin=np.min(image1), vmax=np.mean(image1)*1.5)
-	ax[0].text(0,-15, 'Low gain image...')
-	ax[1].imshow(image2, vmin=np.min(image2), vmax=np.mean(image2)*1.5)
-	ax[1].text(0,-15, 'High gain image...')
-else:
-	plt.figure(figsize=(10,10))
-	plt.imshow(image, vmin=np.min(image), vmax=np.mean(image)*1.5)
+# if imgain == 'both':
+# 	fig, ax = plt.subplots(2, figsize=(6,12))
+# 	ax[0].imshow(image1, vmin=np.min(image1), vmax=np.mean(image1)*1.5)
+# 	ax[0].text(0,-15, 'Low gain image...')
+# 	ax[1].imshow(image2, vmin=np.min(image2), vmax=np.mean(image2)*1.5)
+# 	ax[1].text(0,-15, 'High gain image...')
+# else:
+# 	plt.figure(figsize=(10,10))
+# 	plt.imshow(image, vmin=np.min(image), vmax=np.mean(image)*1.5)
 
-	plt.text(0,-170, 'This is a ' + imgain + ' gain image...')
-	plt.text(0,-130, timestamp)
-	plt.text(0,-90, 'Temp: ' + str(int(binascii.hexlify(sensorcoldtemp), 16)) + 'C')
-	plt.text(0, -50, 'Exposure time: ' + str(int(binascii.hexlify(exptime), 16) * 10.32 / 1000000) + ' seconds')
-	plt.text(0,-10,"lat/long: " + str(latitude) + "N / " + str(longitude) + "W")
+# 	plt.text(0,-170, 'This is a ' + imgain + ' gain image...')
+# 	plt.text(0,-130, timestamp)
+# 	plt.text(0,-90, 'Temp: ' + str(int(binascii.hexlify(sensorcoldtemp), 16)) + 'C')
+# 	plt.text(0, -50, 'Exposure time: ' + str(int(binascii.hexlify(exptime), 16) * 10.32 / 1000000) + ' seconds')
+# 	plt.text(0,-10,"lat/long: " + str(latitude) + "N / " + str(longitude) + "W")
 
-	plt.colorbar()
+# 	plt.colorbar()
 
-plt.tight_layout()
-plt.show()
+# plt.tight_layout()
+# plt.show()
 
 # Vid file header...
 # uint32  magic   four byte "magic number"

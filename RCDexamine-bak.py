@@ -1,4 +1,5 @@
-import binascii, os, sys, glob
+import binascii
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 import time
@@ -8,12 +9,33 @@ import cv2
 from astropy.io import fits
 from sys import platform
 
-def readxbytes(numbytes):
-	for i in range(1):
-		data = fid.read(numbytes)
-		if not data:
-			break
-	return data
+from bokeh.plotting import figure, show, output_file
+from bokeh.models import LinearColorMapper, ColorBar
+from bokeh.models.widgets import Slider, TextInput
+from bokeh.io import curdoc
+from bokeh.layouts import row, column
+from bokeh.models import ColumnDataSource
+
+# @nb.njit(nb.uint16[::1](nb.uint8[::1]),fastmath=True,parallel=True)
+# def nb_read_uint12(data_chunk):
+#   """data_chunk is a contigous 1D array of uint8 data)
+#   eg.data_chunk = np.frombuffer(data_chunk, dtype=np.uint8)"""
+
+#   #ensure that the data_chunk has the right length
+#   assert np.mod(data_chunk.shape[0],3)==0
+
+#   out=np.empty(data_chunk.shape[0]//3*2,dtype=np.uint16)
+
+#   for i in nb.prange(data_chunk.shape[0]//3):
+#     fst_uint8=np.uint16(data_chunk[i*3])
+#     mid_uint8=np.uint16(data_chunk[i*3+1])
+#     lst_uint8=np.uint16(data_chunk[i*3+2])
+
+#     out[i*2] =   (fst_uint8 << 4) + (mid_uint8 >> 4)
+#     out[i*2+1] = ((mid_uint8 % 16) << 8) + lst_uint8
+
+
+#   return out
 
 @nb.njit(nb.uint16[::1](nb.uint8[::1]),fastmath=True,parallel=True)
 def nb_read_data(data_chunk):
@@ -37,6 +59,13 @@ def nb_read_data(data_chunk):
 
 	return out
 
+# def read_uint12(data_chunk): # From https://stackoverflow.com/questions/44735756/python-reading-12-bit-binary-files?rq=1
+#     data = np.frombuffer(data_chunk, dtype=np.uint8)
+#     fst_uint8, mid_uint8, lst_uint8 = np.reshape(data, (data.shape[0] // 3, 3)).astype(np.uint16).T
+#     fst_uint12 = (fst_uint8 << 4) + (mid_uint8 >> 4)
+#     snd_uint12 = ((mid_uint8 % 16) << 8) + lst_uint8
+#     return np.reshape(np.concatenate((fst_uint12[:, None], snd_uint12[:, None]), axis=1), 2 * fst_uint12.shape[0])
+
 def split_images(data,pix_h,pix_v,gain):
 	interimg = np.reshape(data, [2*pix_v,pix_h])
 
@@ -46,8 +75,15 @@ def split_images(data,pix_h,pix_v,gain):
 		image = interimg[1::2]
 
 	return image
+		
+def readxbytes(numbytes):
+	for i in range(1):
+		data = fid.read(numbytes)
+		if not data:
+			break
+	return data
 
-def computelatlong(lat,lon): # Calculate Latitude and Longitude
+def computelatlong(lat,lon):
 	degdivisor = 600000.0
 	degmask = int(0x7fffffff)
 	dirmask = int(0x80000000)
@@ -55,6 +91,7 @@ def computelatlong(lat,lon): # Calculate Latitude and Longitude
 	latraw = int(binascii.hexlify(lat),16)
 	lonraw = int(binascii.hexlify(lon),16)
 
+	# Calculate Latitude and Longitude
 	if (latraw & dirmask) != 0:
 		latitude = (latraw & degmask) / degdivisor
 	else:
@@ -67,41 +104,49 @@ def computelatlong(lat,lon): # Calculate Latitude and Longitude
 
 	return latitude, longitude
 
-# Start main program
+start_time = time.time()
 
 if platform == 'linux' or platform == 'linux2':
 	inputfile = "./first1.rcd"
-	inputdir = sys.argv[1]
+	# print('Linux')
 elif platform == 'win32':
-	inputfile = ".\\first1.rcd"
-	inputdir = sys.argv[1]
+	inputfile = ".\\m711.rcd"
+	# print('Windows')
 
-start_time = time.time()
+imgain = 'low'	# Which image/s to work with. Options: logain, higain, both
 
-if len(sys.argv) > 2:
-	imgain = sys.argv[2]
-else:
-	imgain = 'low'	# Which image/s to work with. Options: low, high, both (still to implement)
+# inputfile = "C:\\Users\\Mike\\Pictures\\Testing\\Stream\\test.rcd"
+
+filesize = os.path.getsize(inputfile)
 
 fid = open(inputfile, 'rb')
-fid.seek(0,0)
-magicnum = readxbytes(4) # 4 bytes ('Meta')
+# fid.seek(0,0)
+# magicnum = readxbytes(4) # 4 bytes ('Meta')
 fid.seek(81,0)
 hpixels = readxbytes(2) # Number of horizontal pixels
 fid.seek(83,0)
 vpixels = readxbytes(2) # Number of vertical pixels
 fid.seek(85,0)
 exptime = readxbytes(4) # Exposure time in 10.32us periods
-fid.seek(89,0)
-sensorcoldtemp = readxbytes(2)
-fid.seek(91,0)
-sensortemp = readxbytes(2)
+# fid.seek(89,0)
+# sensorcoldtemp = readxbytes(2)
+# fid.seek(91,0)
+# sensortemp = readxbytes(2)
+# fid.seek(93,0)
+# globalgain = readxbytes(1)
+# fid.seek(94,0)
+# ldrgain = readxbytes(1)
+# fid.seek(95,0)
+# hdrgain = readxbytes(1)
 fid.seek(99,0)
 hbinning = readxbytes(1)
 fid.seek(100,0)
 vbinning = readxbytes(1)
-fid.seek(141,0)
-basetemp = readxbytes(2) # Sensor base temperature
+# fid.seek(141,0)
+# basetemp = readxbytes(2) # Sensor base temperature
+# fid.seek(143,0)
+# fpgatemp = readxbytes(2)
+# fid.seek(145,0)
 fid.seek(152,0)
 timestamp = readxbytes(30)
 fid.seek(182,0)
@@ -113,47 +158,41 @@ hbin = int(binascii.hexlify(hbinning),16)
 vbin = int(binascii.hexlify(vbinning),16)
 hpix = int(binascii.hexlify(hpixels),16)
 vpix = int(binascii.hexlify(vpixels),16)
+expt = int(binascii.hexlify(exptime), 16) * 10.32 / 1000
+# cldt = int(binascii.hexlify(sensorcoldtemp), 16)
 hnumpix = int(hpix / hbin)
 vnumpix = int(vpix / vbin)
 
+# print(hnumpix)
 # Load data portion of file
+# data_size = hnumpix * vnumpix
 fid.seek(246,0)
 
 table = np.fromfile(fid, dtype=np.uint8)
 testimages = nb_read_data(table)
 
+# if imgain == 'logain':
+# 	image1 = split_images(testimages, hnumpix, vnumpix)
+# elif imgain == 'higain':
+# 	image2 = split_images(testimages, hnumpix, vnumpix)
+# else:
+# 	image1, image2 = split_images(testimages, hnumpix, vnumpix)
+
 image = split_images(testimages, hnumpix, vnumpix, imgain)
 
-if imgain == 'both':
-	image1 = split_images(testimages, hnumpix, vnumpix, 'low')
-	image2 = split_images(testimages, hnumpix, vnumpix, 'high')
-
-image = split_images(testimages, hnumpix, vnumpix, imgain)
+# print("# of pixels (width * height): " + str(hpix) + " * " + str(vpix))
+# print("Binning factor: " + str(hbin) + " x " + str(vbin))
 
 latitude, longitude = computelatlong(lat,lon)
 
 print("Observation lat/long: " + str(latitude) + "N / " + str(longitude) + "W")
+# print(int(binascii.hexlify(hpixels), 16), int(binascii.hexlify(vpixels), 16))
 
 print("--- %s seconds ---" % (time.time() - start_time))
 
-if imgain == 'both':
-	fig, ax = plt.subplots(2, figsize=(6,12))
-	ax[0].imshow(image1, vmin=np.min(image1), vmax=np.mean(image1)*1.5)
-	ax[0].text(0,-15, 'Low gain image...')
-	ax[1].imshow(image2, vmin=np.min(image2), vmax=np.mean(image2)*1.5)
-	ax[1].text(0,-15, 'High gain image...')
-else:
-	plt.figure(figsize=(10,10))
-	plt.imshow(image, vmin=np.min(image), vmax=np.mean(image)*1.5)
-
-	plt.text(0,-170, 'This is a ' + imgain + ' gain image...')
-	plt.text(0,-130, timestamp)
-	plt.text(0,-90, 'Temp: ' + str(int(binascii.hexlify(sensorcoldtemp), 16)) + 'C')
-	plt.text(0, -50, 'Exposure time: ' + str(int(binascii.hexlify(exptime), 16) * 10.32 / 1000000) + ' seconds')
-	plt.text(0,-10,"lat/long: " + str(latitude) + "N / " + str(longitude) + "W")
-
-	plt.colorbar()
-
+plt.figure(figsize=(10,10))
+plt.imshow(image, vmin=np.min(image), vmax=np.mean(image)*1.5)
+plt.colorbar()
 plt.tight_layout()
 plt.show()
 
