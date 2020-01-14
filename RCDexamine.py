@@ -69,12 +69,12 @@ def computelatlong(lat,lon): # Calculate Latitude and Longitude
 
 # Start main program
 
-if platform == 'linux' or platform == 'linux2':
-	inputfile = "./first1.rcd"
-	inputdir = sys.argv[1]
-elif platform == 'win32':
-	inputfile = ".\\25ms_0000014.rcd"
-	#inputdir = sys.argv[1]
+# if platform == 'linux' or platform == 'linux2':
+# 	inputfile = "./first1.rcd"
+# elif platform == 'win32':
+# 	inputfile = ".\\25ms_0000014.rcd"
+
+inputfile = sys.argv[1]
 
 start_time = time.time()
 
