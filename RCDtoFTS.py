@@ -49,11 +49,14 @@ def split_images(data,pix_h,pix_v,gain):
 
 def file_write(imagelist, fileformat, file):
 	if fileformat == 'fits':
+		latitude, longitude = computelatlong(lat,lon)
 		hdu = fits.PrimaryHDU(imagelist)
 		hdr = hdu.header
 		hdr.set('exptime', int(binascii.hexlify(exptime), 16) * 10.32 / 1000000)
-		print(timestamp)
 		hdr.set('time', str(timestamp, 'utf-8'))
+		hdr.set('SITELAT', latitude)
+		hdr.set('SITELONG', longitude)
+		hdr.set('CCD-TEMP', int(binascii.hexlify(sensorcoldtemp), 16))
 		print(hdr)
 		hdu.writeto(file)
 
