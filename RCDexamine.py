@@ -20,7 +20,7 @@ def nb_read_data(data_chunk):
 	"""data_chunk is a contigous 1D array of uint8 data)
 	eg.data_chunk = np.frombuffer(data_chunk, dtype=np.uint8)"""
 	#ensure that the data_chunk has the right length
-
+	print(data_chunk.shape)
 	assert np.mod(data_chunk.shape[0],3)==0
 
 	out=np.empty(data_chunk.shape[0]//3*2,dtype=np.uint16)
@@ -73,8 +73,8 @@ if platform == 'linux' or platform == 'linux2':
 	inputfile = "./first1.rcd"
 	inputdir = sys.argv[1]
 elif platform == 'win32':
-	inputfile = ".\\first1.rcd"
-	inputdir = sys.argv[1]
+	inputfile = ".\\25ms_0000014.rcd"
+	#inputdir = sys.argv[1]
 
 start_time = time.time()
 
@@ -117,7 +117,7 @@ hnumpix = int(hpix / hbin)
 vnumpix = int(vpix / vbin)
 
 # Load data portion of file
-fid.seek(246,0)
+fid.seek(256,0)
 
 table = np.fromfile(fid, dtype=np.uint8)
 testimages = nb_read_data(table)

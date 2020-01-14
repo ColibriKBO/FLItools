@@ -130,7 +130,7 @@ for filename in glob.glob(globpath):
 	vnumpix = int(vpix / vbin)
 
 	# Load data portion of file
-	fid.seek(246,0)
+	fid.seek(256,0)
 
 	table = np.fromfile(fid, dtype=np.uint8)
 	testimages = nb_read_data(table)
