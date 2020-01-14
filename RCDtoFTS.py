@@ -50,6 +50,11 @@ def split_images(data,pix_h,pix_v,gain):
 def file_write(imagelist, fileformat, file):
 	if fileformat == 'fits':
 		hdu = fits.PrimaryHDU(imagelist)
+		hdr = hdu.header
+		hdr.set('exptime', int(binascii.hexlify(exptime), 16) * 10.32 / 1000000)
+		print(timestamp)
+		hdr.set('time', str(timestamp, 'utf-8'))
+		print(hdr)
 		hdu.writeto(file)
 
 def computelatlong(lat,lon): # Calculate Latitude and Longitude
