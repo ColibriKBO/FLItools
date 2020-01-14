@@ -56,7 +56,7 @@ def file_write(imagelist, fileformat, file):
 		hdr.set('SITELAT', latitude)
 		hdr.set('SITELONG', longitude)
 		hdr.set('CCD-TEMP', int(binascii.hexlify(sensorcoldtemp), 16))
-		hdu.writeto(file, header=hdr)
+		hdu.writeto(file)
 
 def computelatlong(lat,lon): # Calculate Latitude and Longitude
 	degdivisor = 600000.0
