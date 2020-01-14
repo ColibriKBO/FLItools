@@ -93,6 +93,7 @@ globpath = inputdir + '*.rcd'
 
 for filename in glob.glob(globpath):
 	inputfile = os.path.splitext(filename)[0]
+	print(inputfile)
 	fitsfile = inputfile + '.fits'
 
 	fid = open(filename, 'rb')
