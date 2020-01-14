@@ -52,7 +52,7 @@ def file_write(imagelist, fileformat, file):
 		hdu = fits.PrimaryHDU(imagelist)
 		hdr = hdu.header
 		hdr.set('exptime', int(binascii.hexlify(exptime), 16) * 10.32 / 1000000)
-		hdr.set('time', str(timestamp, 'utf-8'))
+		hdr.set('DATE-OBS', str(timestamp, 'utf-8'))
 		hdr.set('SITELAT', latitude)
 		hdr.set('SITELONG', longitude)
 		hdr.set('CCD-TEMP', int(binascii.hexlify(sensorcoldtemp), 16))
