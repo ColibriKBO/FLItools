@@ -90,7 +90,7 @@ else:
 start_time = time.time()
 
 globpath = inputdir + '*.rcd'
-
+print(globpath)
 for filename in glob.glob(globpath):
 	inputfile = os.path.splitext(filename)[0]
 	print(filename)
