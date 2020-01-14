@@ -74,10 +74,10 @@ def computelatlong(lat,lon): # Calculate Latitude and Longitude
 
 # Start main program
 
-if platform == 'linux' or platform == 'linux2':
-	inputfile = "./first1.rcd"
-elif platform == 'win32':
-	inputfile = ".\\first1.rcd"
+# if platform == 'linux' or platform == 'linux2':
+# 	inputfile = "./first1.rcd"
+# elif platform == 'win32':
+# 	inputfile = ".\\first1.rcd"
 
 if len(sys.argv) > 1:
 	inputdir = sys.argv[1]
@@ -93,7 +93,7 @@ globpath = inputdir + '*.rcd'
 print(globpath)
 for filename in glob.glob(globpath):
 	inputfile = os.path.splitext(filename)[0]
-	print(filename)
+	# print(filename)
 	fitsfile = inputfile + '.fits'
 
 	fid = open(filename, 'rb')
