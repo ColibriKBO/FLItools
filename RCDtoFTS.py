@@ -3,7 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 import numba as nb
-#import cv2
 
 from astropy.io import fits
 from sys import platform
@@ -82,11 +81,6 @@ def computelatlong(lat,lon): # Calculate Latitude and Longitude
 
 # Start main program
 
-# if platform == 'linux' or platform == 'linux2':
-# 	inputfile = "./first1.rcd"
-# elif platform == 'win32':
-# 	inputfile = ".\\first1.rcd"
-
 if len(sys.argv) > 1:
 	inputdir = sys.argv[1]
 
@@ -99,9 +93,9 @@ start_time = time.time()
 
 globpath = inputdir + '*.rcd'
 print(globpath)
+
 for filename in glob.glob(globpath):
 	inputfile = os.path.splitext(filename)[0]
-	# print(filename)
 	fitsfile = inputfile + '.fits'
 
 	fid = open(filename, 'rb')
@@ -153,32 +147,7 @@ for filename in glob.glob(globpath):
 
 	file_write(image, 'fits', fitsfile)
 
-# latitude, longitude = computelatlong(lat,lon)
-
-# print("Observation lat/long: " + str(latitude) + "N / " + str(longitude) + "W")
-
 print("--- %s seconds ---" % (time.time() - start_time))
-
-# if imgain == 'both':
-# 	fig, ax = plt.subplots(2, figsize=(6,12))
-# 	ax[0].imshow(image1, vmin=np.min(image1), vmax=np.mean(image1)*1.5)
-# 	ax[0].text(0,-15, 'Low gain image...')
-# 	ax[1].imshow(image2, vmin=np.min(image2), vmax=np.mean(image2)*1.5)
-# 	ax[1].text(0,-15, 'High gain image...')
-# else:
-# 	plt.figure(figsize=(10,10))
-# 	plt.imshow(image, vmin=np.min(image), vmax=np.mean(image)*1.5)
-
-# 	plt.text(0,-170, 'This is a ' + imgain + ' gain image...')
-# 	plt.text(0,-130, timestamp)
-# 	plt.text(0,-90, 'Temp: ' + str(int(binascii.hexlify(sensorcoldtemp), 16)) + 'C')
-# 	plt.text(0, -50, 'Exposure time: ' + str(int(binascii.hexlify(exptime), 16) * 10.32 / 1000000) + ' seconds')
-# 	plt.text(0,-10,"lat/long: " + str(latitude) + "N / " + str(longitude) + "W")
-
-# 	plt.colorbar()
-
-# plt.tight_layout()
-# plt.show()
 
 # Vid file header...
 # uint32  magic   four byte "magic number"
