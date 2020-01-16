@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 import numba as nb
-import cv2
+#import cv2
 
 from astropy.io import fits
 from sys import platform

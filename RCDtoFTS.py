@@ -135,7 +135,7 @@ for filename in glob.glob(globpath):
 	# Load data portion of file
 	fid.seek(246,0)
 
-	table = np.fromfile(fid, dtype=np.uint8)
+	table = np.fromfile(fid, dtype=np.uint8, count=12582912)
 	testimages = nb_read_data(table)
 
 	image = split_images(testimages, hnumpix, vnumpix, imgain)
