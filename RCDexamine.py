@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 import numba as nb
-import cv2
+#import cv2
 
 from astropy.io import fits
 from sys import platform
@@ -117,9 +117,9 @@ hnumpix = int(hpix / hbin)
 vnumpix = int(vpix / vbin)
 
 # Load data portion of file
-fid.seek(256,0)
+fid.seek(246,0)
 
-table = np.fromfile(fid, dtype=np.uint8)
+table = np.fromfile(fid, dtype=np.uint8, count=12582912)
 testimages = nb_read_data(table)
 
 image = split_images(testimages, hnumpix, vnumpix, imgain)
