@@ -88,10 +88,10 @@ if len(sys.argv) > 2:
 else:
 	imgain = 'low'	# Which image/s to work with. Options: low, high, both (still to implement)
 
-start_time = time.time()
-
 globpath = inputdir + '*.rcd'
 print(globpath)
+
+start_time = time.time()
 
 for filename in glob.glob(globpath):
 	inputfile = os.path.splitext(filename)[0]
@@ -99,21 +99,21 @@ for filename in glob.glob(globpath):
 
 	fid = open(filename, 'rb')
 	fid.seek(0,0)
-	magicnum = readxbytes(4) # 4 bytes ('Meta')
-	fid.seek(81,0)
-	hpixels = readxbytes(2) # Number of horizontal pixels
-	fid.seek(83,0)
-	vpixels = readxbytes(2) # Number of vertical pixels
+	# magicnum = readxbytes(4) # 4 bytes ('Meta')
+	# fid.seek(81,0)
+	# hpixels = readxbytes(2) # Number of horizontal pixels
+	# fid.seek(83,0)
+	# vpixels = readxbytes(2) # Number of vertical pixels
 	fid.seek(85,0)
 	exptime = readxbytes(4) # Exposure time in 10.32us periods
 	fid.seek(89,0)
 	sensorcoldtemp = readxbytes(2)
 	fid.seek(91,0)
 	sensortemp = readxbytes(2)
-	fid.seek(99,0)
-	hbinning = readxbytes(1)
-	fid.seek(100,0)
-	vbinning = readxbytes(1)
+	# fid.seek(99,0)
+	# hbinning = readxbytes(1)
+	# fid.seek(100,0)
+	# vbinning = readxbytes(1)
 	fid.seek(141,0)
 	basetemp = readxbytes(2) # Sensor base temperature
 	fid.seek(152,0)
@@ -123,12 +123,14 @@ for filename in glob.glob(globpath):
 	fid.seek(186,0)
 	lon = readxbytes(4)
 
-	hbin = int(binascii.hexlify(hbinning),16)
-	vbin = int(binascii.hexlify(vbinning),16)
-	hpix = int(binascii.hexlify(hpixels),16)
-	vpix = int(binascii.hexlify(vpixels),16)
-	hnumpix = int(hpix / hbin)
-	vnumpix = int(vpix / vbin)
+	# hbin = int(binascii.hexlify(hbinning),16)
+	# vbin = int(binascii.hexlify(vbinning),16)
+	# hpix = int(binascii.hexlify(hpixels),16)
+	# vpix = int(binascii.hexlify(vpixels),16)
+	# hnumpix = int(hpix / hbin)
+	# vnumpix = int(vpix / vbin)
+	hnumpix = 2048
+	vnumpix = 2048
 
 	# Load data portion of file
 	fid.seek(256,0)
@@ -138,9 +140,9 @@ for filename in glob.glob(globpath):
 
 	image = split_images(testimages, hnumpix, vnumpix, imgain)
 
-	if imgain == 'both':
-		image1 = split_images(testimages, hnumpix, vnumpix, 'low')
-		image2 = split_images(testimages, hnumpix, vnumpix, 'high')
+	# if imgain == 'both':
+	# 	image1 = split_images(testimages, hnumpix, vnumpix, 'low')
+	# 	image2 = split_images(testimages, hnumpix, vnumpix, 'high')
 
 	image = split_images(testimages, hnumpix, vnumpix, imgain)
 
