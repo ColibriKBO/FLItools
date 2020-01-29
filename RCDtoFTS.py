@@ -117,7 +117,7 @@ for filename in glob.glob(globpath):
 	fid.seek(141,0)
 	basetemp = readxbytes(2) # Sensor base temperature
 	fid.seek(152,0)
-	timestamp = readxbytes(30)
+	timestamp = readxbytes(29)
 	fid.seek(182,0)
 	lat = readxbytes(4)
 	fid.seek(186,0)
