@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 import numba as nb
+import scipy.misc
 
 from astropy.io import fits
 from sys import platform
@@ -147,6 +148,7 @@ for filename in glob.glob(globpath):
 	image = split_images(testimages, hnumpix, vnumpix, imgain)
 
 	file_write(image, 'fits', fitsfile)
+	scipy.misc.imsave(inputfile + '.jpg', image)
 
 print("--- %s seconds ---" % (time.time() - start_time))
 
