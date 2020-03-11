@@ -147,8 +147,10 @@ for filename in glob.glob(globpath):
 
 	image = split_images(testimages, hnumpix, vnumpix, imgain)
 
+	#image = image / (np.mean(image)/32000.0)
+
 	file_write(image, 'fits', fitsfile)
-	imageio.imwrite(inputfile + '.jpg', image)
+	# imageio.imwrite(inputfile + '.png', image)
 
 print("--- %s seconds ---" % (time.time() - start_time))
 
