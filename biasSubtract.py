@@ -1,10 +1,9 @@
 from astropy.io import fits
-import matplotlib.pyplot as plt
-import numpy as np
+# import matplotlib.pyplot as plt
+# import numpy as np
 import sys, os
 
 imdir = sys.argv[1]
-# imdir = 'C:\\Users\\Mike\\Pictures\\test'
 
 biasname = 'bias-high.fits'
 bias_file = os.path.join(imdir,'bias-high.fits')
@@ -19,4 +18,3 @@ for filename in os.listdir(imdir):
 		hdu = fits.PrimaryHDU(subimg)
 		hdu.writeto(outfile, overwrite=True)
 		print('Wrote %s' % outfile)
-
