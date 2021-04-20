@@ -237,7 +237,7 @@ bkg = sep.Background(image)
 data_sub = image - bkg
 
 objects = sep.extract(data_sub, 1.5, err=bkg.globalrms)
-print(len(objects))
+# print(len(objects))
 
 
 # # plot background-subtracted image
@@ -260,7 +260,7 @@ print(len(objects))
 
 print("--- %s seconds ---" % (time.time() - start_time))
 
-print(objects['flux'])
+# print(objects['flux'])
 
 # Vid file header...
 # uint32  magic   four byte "magic number"
