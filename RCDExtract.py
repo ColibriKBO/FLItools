@@ -203,36 +203,36 @@ image, timestamp = readRCD(inputfile,width,height,imgain)
 if args.bias:
 	image = subtractBias(image,biasimage)
 
-print("--- %s seconds ---" % (time.time() - start_time))
 
-plt.figure(figsize=(10,10))
-plt.imshow(image, vmin=np.mean(image)*0.95, vmax=np.mean(image)*1.05)
 
-# plt.text(0,-170, 'This is a ' + imgain + ' gain image...')
-# plt.text(0,-130, timestamp)
-# plt.text(0,-90, 'Temp: ' + str(int(binascii.hexlify(sensorcoldtemp), 16)) + 'C')
-# plt.text(0, -50, 'Exposure time: ' + str(int(binascii.hexlify(exptime), 16) * 10.32 / 1000000) + ' seconds')
-# plt.text(0,-10,"lat/long: " + str(latitude) + "N / " + str(longitude) + "W")
-plt.colorbar()
+# plt.figure(figsize=(10,10))
+# plt.imshow(image, vmin=np.mean(image)*0.95, vmax=np.mean(image)*1.05)
 
-plt.tight_layout()
-plt.show()
+# # plt.text(0,-170, 'This is a ' + imgain + ' gain image...')
+# # plt.text(0,-130, timestamp)
+# # plt.text(0,-90, 'Temp: ' + str(int(binascii.hexlify(sensorcoldtemp), 16)) + 'C')
+# # plt.text(0, -50, 'Exposure time: ' + str(int(binascii.hexlify(exptime), 16) * 10.32 / 1000000) + ' seconds')
+# # plt.text(0,-10,"lat/long: " + str(latitude) + "N / " + str(longitude) + "W")
+# plt.colorbar()
+
+# plt.tight_layout()
+# plt.show()
 
 m, s = np.mean(image), np.std(image)
 bkg = sep.Background(image)
 
-print(bkg.globalback)
-print(bkg.globalrms)
+# print(bkg.globalback)
+# print(bkg.globalrms)
 
-bkg_image = bkg.back()
-plt.imshow(bkg_image, interpolation='nearest')
-plt.colorbar()
-plt.show()
+# bkg_image = bkg.back()
+# plt.imshow(bkg_image, interpolation='nearest')
+# plt.colorbar()
+# plt.show()
 
-bkg_rms = bkg.rms()
-plt.imshow(bkg_rms, interpolation='nearest')
-plt.colorbar()
-plt.show()
+# bkg_rms = bkg.rms()
+# plt.imshow(bkg_rms, interpolation='nearest')
+# plt.colorbar()
+# plt.show()
 
 data_sub = image - bkg
 
@@ -240,23 +240,25 @@ objects = sep.extract(data_sub, 1.5, err=bkg.globalrms)
 print(len(objects))
 
 
-# plot background-subtracted image
-fig, ax = plt.subplots()
-m, s = np.mean(data_sub), np.std(data_sub)
-im = ax.imshow(data_sub, interpolation='nearest', cmap='gray',
-               vmin=m-2*s, vmax=m+4*s, origin='lower')
+# # plot background-subtracted image
+# fig, ax = plt.subplots()
+# m, s = np.mean(data_sub), np.std(data_sub)
+# im = ax.imshow(data_sub, interpolation='nearest', cmap='gray',
+#                vmin=m-2*s, vmax=m+4*s, origin='lower')
 
-# plot an ellipse for each object
-for i in range(len(objects)):
-    e = Ellipse(xy=(objects['x'][i], objects['y'][i]),
-                width=6*objects['a'][i],
-                height=6*objects['b'][i],
-                angle=objects['theta'][i] * 180. / np.pi)
-    e.set_facecolor('none')
-    e.set_edgecolor('red')
-    ax.add_artist(e)
+# # plot an ellipse for each object
+# for i in range(len(objects)):
+#     e = Ellipse(xy=(objects['x'][i], objects['y'][i]),
+#                 width=6*objects['a'][i],
+#                 height=6*objects['b'][i],
+#                 angle=objects['theta'][i] * 180. / np.pi)
+#     e.set_facecolor('none')
+#     e.set_edgecolor('red')
+#     ax.add_artist(e)
 
-plt.show()
+# plt.show()
+
+print("--- %s seconds ---" % (time.time() - start_time))
 
 print(objects['flux'])
 
