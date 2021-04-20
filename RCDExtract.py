@@ -234,7 +234,7 @@ bkg = sep.Background(image)
 # plt.colorbar()
 # plt.show()
 
-data_sub = image - bkg
+# data_sub = image - bkg
 
 objects = sep.extract(data_sub, 1.5, err=bkg.globalrms)
 # print(len(objects))
