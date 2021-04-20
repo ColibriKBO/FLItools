@@ -236,7 +236,7 @@ bkg = sep.Background(image)
 
 # data_sub = image - bkg
 
-objects = sep.extract(data_sub, 1.5, err=bkg.globalrms)
+# objects = sep.extract(data_sub, 1.5, err=bkg.globalrms)
 # print(len(objects))
 
 
