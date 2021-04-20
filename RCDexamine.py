@@ -3,10 +3,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 import numba as nb
+import sep
+import argparse
 #import cv2
 
 from astropy.io import fits
 from sys import platform
+from matplotlib import rcParams
+from matplotlib.patches import Ellipse
 
 def readxbytes(numbytes):
 	for i in range(1):
@@ -155,6 +159,51 @@ else:
 	plt.colorbar()
 
 plt.tight_layout()
+plt.show()
+
+image = image.astype('int')
+image = image.copy(order='C')
+print(image.flags)
+print(image.dtype)
+
+m, s = np.mean(image), np.std(image)
+bkg = sep.Background(image)
+
+print(bkg.globalback)
+print(bkg.globalrms)
+
+bkg_image = bkg.back()
+plt.imshow(bkg_image, interpolation='nearest')
+plt.colorbar()
+plt.show()
+
+bkg_rms = bkg.rms()
+plt.imshow(bkg_rms, interpolation='nearest')
+plt.colorbar()
+plt.show()
+
+data_sub = image - bkg
+
+objects = sep.extract(data_sub, 2.0, err=bkg.globalrms)
+print(len(objects))
+
+
+# plot background-subtracted image
+fig, ax = plt.subplots()
+m, s = np.mean(data_sub), np.std(data_sub)
+im = ax.imshow(data_sub, interpolation='nearest', cmap='gray',
+               vmin=m-s, vmax=m+s, origin='lower')
+
+# plot an ellipse for each object
+for i in range(len(objects)):
+    e = Ellipse(xy=(objects['x'][i], objects['y'][i]),
+                width=6*objects['a'][i],
+                height=6*objects['b'][i],
+                angle=objects['theta'][i] * 180. / np.pi)
+    e.set_facecolor('none')
+    e.set_edgecolor('red')
+    ax.add_artist(e)
+
 plt.show()
 
 # Vid file header...
