@@ -227,13 +227,13 @@ if args.dir:
 				image, timestamp = readRCD(root + '/' +file, width, height, imgain)
 				#print(timestamp)
 
-				if args.bias:
-					image = subtractBias(image,biasimage)
+				# if args.bias:
+				# 	image = subtractBias(image,biasimage)
 
-				m, s = np.mean(image), np.std(image)
-				bkg = sep.Background(image)
+				# m, s = np.mean(image), np.std(image)
+				# bkg = sep.Background(image)
 
-				data_sub = image - bkg
+				# data_sub = image - bkg
 
 				# objects = sep.extract(data_sub, 1.5, err=bkg.globalrms)
 
