@@ -235,7 +235,7 @@ if args.dir:
 
 				data_sub = image - bkg
 
-				# objects = sep.extract(data_sub, 1.5, err=bkg.globalrms)
+				objects = sep.extract(data_sub, 1.5, err=bkg.globalrms)
 
 else:
 	image, timestamp = readRCD(inputfile,width,height,imgain)
