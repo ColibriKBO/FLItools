@@ -223,13 +223,12 @@ start_time = time.time()
 if args.dir:
 	for root, dirs, files in os.walk(inputdir):
 		for file in files:
-			image, timestamp = readRCD(root + '/' +file, width, height, imgain)
-			# if file.endswith('.rcd'):
-			# 	image, timestamp = readRCD(root + '/' +file, width, height, imgain)
+			if file.endswith('.rcd'):
+				image, timestamp = readRCD(root + '/' +file, width, height, imgain)
 				#print(timestamp)
 
-				# if args.bias:
-				# 	image = subtractBias(image,biasimage)
+				if args.bias:
+					image = subtractBias(image,biasimage)
 
 				# m, s = np.mean(image), np.std(image)
 				# bkg = sep.Background(image)
