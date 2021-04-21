@@ -231,9 +231,9 @@ if args.dir:
 					image = subtractBias(image,biasimage)
 
 				# m, s = np.mean(image), np.std(image)
-				# bkg = sep.Background(image)
+				bkg = sep.Background(image)
 
-				# data_sub = image - bkg
+				data_sub = image - bkg
 
 				# objects = sep.extract(data_sub, 1.5, err=bkg.globalrms)
 
