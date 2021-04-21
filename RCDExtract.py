@@ -96,7 +96,7 @@ def readRCD(filename, hnumpix, vnumpix, gain):
 	table = np.fromfile(fid, dtype=np.uint8, count=12582912)
 	testimages = nb_read_data(table)
 	image = split_images(testimages, hnumpix, vnumpix, gain)
-	image = image.astype('int')
+	image = image.astype('int32')
 	image = image.copy(order='C')
 	fid.close()
 	return image, timestamp
@@ -231,9 +231,9 @@ if args.dir:
 					image = subtractBias(image,biasimage)
 
 				# m, s = np.mean(image), np.std(image)
-				# bkg = sep.Background(image)
+				bkg = sep.Background(image)
 
-				# data_sub = image - bkg
+				data_sub = image - bkg
 
 				# objects = sep.extract(data_sub, 1.5, err=bkg.globalrms)
 
