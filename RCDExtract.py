@@ -24,7 +24,7 @@ def nb_read_data(data_chunk):
 	"""data_chunk is a contigous 1D array of uint8 data)
 	eg.data_chunk = np.frombuffer(data_chunk, dtype=np.uint8)"""
 	#ensure that the data_chunk has the right length
-	print(data_chunk.shape)
+	# print(data_chunk.shape)
 	assert np.mod(data_chunk.shape[0],3)==0
 
 	out=np.empty(data_chunk.shape[0]//3*2,dtype=np.uint16)
@@ -123,8 +123,12 @@ args = parser.parse_args()
 
 if args.file:
 	inputfile = args.file
+elif args.dir:
+	inputdir = args.dir
+	print(inputdir)
 else:
-	exit()
+	exit(0)
+
 if args.gain:
 	imgain = args.gain
 else:
@@ -198,46 +202,81 @@ start_time = time.time()
 
 # print("Observation lat/long: " + str(latitude) + "N / " + str(longitude) + "W")
 
-image, timestamp = readRCD(inputfile,width,height,imgain)
+# fid = open(inputfile, 'rb')
+# fid.seek(0,0)
+# magicnum = readxbytes(fid,4) # 4 bytes ('Meta')
 
-if args.bias:
-	image = subtractBias(image,biasimage)
+# fid.seek(152,0)
+# timestamp = readxbytes(fid,29)
 
+# # Load data portion of file
+# fid.seek(246,0)
+# # fid.seek(384,0)
 
+# table = np.fromfile(fid, dtype=np.uint8, count=12582912)
+# testimages = nb_read_data(table)
+# image = split_images(testimages, width, height, imgain)
+# image = image.astype('int')
+# image = image.copy(order='C')
+# fid.close()
 
-# plt.figure(figsize=(10,10))
-# plt.imshow(image, vmin=np.mean(image)*0.95, vmax=np.mean(image)*1.05)
+if args.dir:
+	for root, dirs, files in os.walk(inputdir):
+		for file in files:
+			if file.endswith('.rcd'):
+				image, timestamp = readRCD(root + '/' +file, width, height, imgain)
+				#print(timestamp)
 
-# # plt.text(0,-170, 'This is a ' + imgain + ' gain image...')
-# # plt.text(0,-130, timestamp)
-# # plt.text(0,-90, 'Temp: ' + str(int(binascii.hexlify(sensorcoldtemp), 16)) + 'C')
-# # plt.text(0, -50, 'Exposure time: ' + str(int(binascii.hexlify(exptime), 16) * 10.32 / 1000000) + ' seconds')
-# # plt.text(0,-10,"lat/long: " + str(latitude) + "N / " + str(longitude) + "W")
-# plt.colorbar()
+				if args.bias:
+					image = subtractBias(image,biasimage)
 
-# plt.tight_layout()
-# plt.show()
+				m, s = np.mean(image), np.std(image)
+				bkg = sep.Background(image)
 
-m, s = np.mean(image), np.std(image)
-bkg = sep.Background(image)
+				data_sub = image - bkg
 
-# print(bkg.globalback)
-# print(bkg.globalrms)
+				objects = sep.extract(data_sub, 1.5, err=bkg.globalrms)
 
-# bkg_image = bkg.back()
-# plt.imshow(bkg_image, interpolation='nearest')
-# plt.colorbar()
-# plt.show()
+else:
+	image, timestamp = readRCD(inputfile,width,height,imgain)
+	print(timestamp)
 
-# bkg_rms = bkg.rms()
-# plt.imshow(bkg_rms, interpolation='nearest')
-# plt.colorbar()
-# plt.show()
+	if args.bias:
+		image = subtractBias(image,biasimage)
 
-# data_sub = image - bkg
+	# plt.figure(figsize=(10,10))
+	# plt.imshow(image, vmin=np.mean(image)*0.95, vmax=np.mean(image)*1.05)
 
-# objects = sep.extract(data_sub, 1.5, err=bkg.globalrms)
-# print(len(objects))
+	# # plt.text(0,-170, 'This is a ' + imgain + ' gain image...')
+	# # plt.text(0,-130, timestamp)
+	# # plt.text(0,-90, 'Temp: ' + str(int(binascii.hexlify(sensorcoldtemp), 16)) + 'C')
+	# # plt.text(0, -50, 'Exposure time: ' + str(int(binascii.hexlify(exptime), 16) * 10.32 / 1000000) + ' seconds')
+	# # plt.text(0,-10,"lat/long: " + str(latitude) + "N / " + str(longitude) + "W")
+	# plt.colorbar()
+
+	# plt.tight_layout()
+	# plt.show()
+
+	m, s = np.mean(image), np.std(image)
+	bkg = sep.Background(image)
+
+	# print(bkg.globalback)
+	# print(bkg.globalrms)
+
+	# bkg_image = bkg.back()
+	# plt.imshow(bkg_image, interpolation='nearest')
+	# plt.colorbar()
+	# plt.show()
+
+	# bkg_rms = bkg.rms()
+	# plt.imshow(bkg_rms, interpolation='nearest')
+	# plt.colorbar()
+	# plt.show()
+
+	data_sub = image - bkg
+
+	objects = sep.extract(data_sub, 1.5, err=bkg.globalrms)
+	# print(len(objects))
 
 
 # # plot background-subtracted image
