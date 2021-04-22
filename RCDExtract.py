@@ -352,25 +352,25 @@ if __name__ == "__main__":
 
 		# print(list(files))
 
-		# Working but slowest
-		n_threads = 12
-		array_chunk = np.array_split(files,n_threads)
-		# print(array_chunk)
-		thread_list = []
-		for thr in range(n_threads):
-			thread = threading.Thread(target=extractSourcesFromRCD3, args=(array_chunk[thr],biasimage,width,height,imgain),)
-			thread_list.append(thread)
-			thread_list[thr].start()
-		for thread in thread_list:
-			thread.join()
+		# Working but slowest 150ms/file
+		# n_threads = 12
+		# array_chunk = np.array_split(files,n_threads)
+		# # print(array_chunk)
+		# thread_list = []
+		# for thr in range(n_threads):
+		# 	thread = threading.Thread(target=extractSourcesFromRCD3, args=(array_chunk[thr],biasimage,width,height,imgain),)
+		# 	thread_list.append(thread)
+		# 	thread_list[thr].start()
+		# for thread in thread_list:
+		# 	thread.join()
 
 		# Working
-		# pool_size = 12
-		# pool = Pool(pool_size)
-		# for file in fullpaths:
-		# 	pool.apply_async(extractSourcesFromRCD2, (file,))
-		# pool.close()
-		# pool.join()
+		pool_size = 12
+		pool = Pool(pool_size)
+		for file in fullpaths:
+			pool.apply_async(extractSourcesFromRCD2, (file,))
+		pool.close()
+		pool.join()
 
 		# Working Pool
 		# p = Pool(12)
