@@ -12,6 +12,7 @@ from astropy.io import fits
 from sys import platform
 from matplotlib import rcParams
 from matplotlib.patches import Ellipse
+from multiprocessing.pool import ThreadPool as Pool
 
 def readxbytes(fid, numbytes):
 	for i in range(1):
@@ -107,38 +108,39 @@ def subtractBias(image, bias):
 	bias_sub = np.subtract(image,bias)
 	return bias_sub
 
-def extractSourcesFromRCD(filename_chunk,bias,hnumpix,vnumpix,gain):
-	for filename in filename_chunk:
-		try:
-			fid = open(filename, 'rb')
-			fid.seek(0,0)
-			magicnum = readxbytes(fid,4) # 4 bytes ('Meta')
-			# Check the magic number. If it doesn't match, exit function
+def extractSourcesFromRCD(filename,bias,hnumpix,vnumpix,gain):
+	
+	try:
+		fid = open(filename, 'rb')
+		fid.seek(0,0)
+		magicnum = readxbytes(fid,4) # 4 bytes ('Meta')
+		# Check the magic number. If it doesn't match, exit function
 
-			fid.seek(152,0)
-			timestamp = readxbytes(fid,29)
+		fid.seek(152,0)
+		timestamp = readxbytes(fid,29)
 
-			# Load data portion of file
-			fid.seek(246,0)
-			# fid.seek(384,0)
+		# Load data portion of file
+		fid.seek(246,0)
+		# fid.seek(384,0)
 
-			table = np.fromfile(fid, dtype=np.uint8, count=12582912)
-			testimages = nb_read_data(table)
-			image = split_images(testimages, hnumpix, vnumpix, gain)
-			image = image.astype('int32')
-			image = image.copy(order='C')
-			fid.close()
+		table = np.fromfile(fid, dtype=np.uint8, count=12582912)
+		testimages = nb_read_data(table)
+		image = split_images(testimages, hnumpix, vnumpix, gain)
+		image = image.astype('int32')
+		image = image.copy(order='C')
+		fid.close()
 
-			image = subtractBias(image,biasimage)
+		image = subtractBias(image,biasimage)
 
-						# m, s = np.mean(image), np.std(image)
-			bkg = sep.Background(image)
+					# m, s = np.mean(image), np.std(image)
+		bkg = sep.Background(image)
 
-			data_sub = image - bkg
+		data_sub = image - bkg
 
-			objects = sep.extract(data_sub, 1.5, err=bkg.globalrms)
-		except Exception:
-			print('Error with filename')
+		objects = sep.extract(data_sub, 1.5, err=bkg.globalrms)
+	except Exception:
+		print('')
+		print('Error with filename')
 
 # Start main program
 
@@ -266,16 +268,24 @@ if args.dir:
 
 	# print(list(files))
 
-	n_threads = 20
-	array_chunk = np.array_split(files,n_threads)
-	# print(array_chunk)
-	thread_list = []
-	for thr in range(n_threads):
-		thread = threading.Thread(target=extractSourcesFromRCD, args=(array_chunk[thr],biasimage,width,height,imgain),)
-		thread_list.append(thread)
-		thread_list[thr].start()
-	for thread in thread_list:
-		thread.join()
+	# n_threads = 20
+	# array_chunk = np.array_split(files,n_threads)
+	# # print(array_chunk)
+	# thread_list = []
+	# for thr in range(n_threads):
+	# 	thread = threading.Thread(target=extractSourcesFromRCD, args=(array_chunk[thr],biasimage,width,height,imgain),)
+	# 	thread_list.append(thread)
+	# 	thread_list[thr].start()
+	# for thread in thread_list:
+	# 	thread.join()
+
+	pool_size = 20
+	pool = Pool(pool_size)
+	for file in files:
+		pool.apply_async(extractSourcesFromRCD, (file,biasimage,2048,2048,'low',))
+
+	pool.close()
+	pool.join()
 
 	# for path in os.listdir(inputdir):
 	# 	files = []
