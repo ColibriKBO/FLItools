@@ -142,7 +142,7 @@ def extractSourcesFromRCD(filename,bias,hnumpix,vnumpix,gain):
 			print('')
 			print('Error with filename')
 
-def extractSourcesFromRCD2(filename,biasimage):
+def extractSourcesFromRCD2(filename):
 		hnumpix=2048
 		vnumpix=2048
 		gain = 'low'
@@ -166,7 +166,7 @@ def extractSourcesFromRCD2(filename,biasimage):
 			image = image.copy(order='C')
 			fid.close()
 
-			image = subtractBias(image,biasimage)
+			# image = subtractBias(image,biasimage)
 
 						# m, s = np.mean(image), np.std(image)
 			bkg = sep.Background(image)
