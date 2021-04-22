@@ -337,7 +337,7 @@ if __name__ == "__main__":
 		# pool.join()
 
 
-		p = Pool(4)
+		p = Pool(12)
 		p.map(extractSourcesFromRCD2, fullpaths)
 		p.close()
 		p.join()
