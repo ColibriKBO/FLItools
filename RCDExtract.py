@@ -175,7 +175,7 @@ def extractSourcesFromRCD2(filename):
 
 			objects = sep.extract(data_sub, 1.5, err=bkg.globalrms)
 		except Exception:
-			print('')
+			print(filename)
 			print('Error with filename')
 
 # Start main program
