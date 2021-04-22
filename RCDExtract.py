@@ -13,6 +13,7 @@ from sys import platform
 from matplotlib import rcParams
 from matplotlib.patches import Ellipse
 from multiprocessing.pool import ThreadPool as Pool
+from multiprocessing import Pool
 
 def readxbytes(fid, numbytes):
 	for i in range(1):
@@ -113,7 +114,7 @@ def extractSourcesFromRCD(filename,bias,hnumpix,vnumpix,gain):
 	try:
 		fid = open(filename, 'rb')
 		fid.seek(0,0)
-		magicnum = readxbytes(fid,4) # 4 bytes ('Meta')
+		# magicnum = readxbytes(fid,4) # 4 bytes ('Meta')
 		# Check the magic number. If it doesn't match, exit function
 
 		fid.seek(152,0)
@@ -279,13 +280,18 @@ if args.dir:
 	# for thread in thread_list:
 	# 	thread.join()
 
-	pool_size = 20
-	pool = Pool(pool_size)
-	for file in files:
-		pool.apply_async(extractSourcesFromRCD, (file,biasimage,2048,2048,'low',))
+# Thread Pool example
+	# pool_size = 20
+	# pool = Pool(pool_size)
+	# for file in files:
+	# 	pool.apply_async(extractSourcesFromRCD, (file,biasimage,2048,2048,'low',))
 
-	pool.close()
-	pool.join()
+	# pool.close()
+	# pool.join()
+
+	pool = Pool()
+	for file in files:
+		pool.map(extractSourcesFromRCD, (file,biasimage,2048,2048,imgain))
 
 	# for path in os.listdir(inputdir):
 	# 	files = []
