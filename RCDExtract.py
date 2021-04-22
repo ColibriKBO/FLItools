@@ -325,7 +325,7 @@ if args.dir:
 	# pool.join()
 
 
-	p = Pool(20)
+	p = Pool(12)
 	p.map(extractSourcesFromRCD2, files)
 	p.close()
 	p.join()
