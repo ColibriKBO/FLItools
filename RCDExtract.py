@@ -169,11 +169,9 @@ def extractSourcesFromRCD2(filename):
 
 		# image = subtractBias(image,biasimage)
 
-					# m, s = np.mean(image), np.std(image)
+		# m, s = np.mean(image), np.std(image)
 		bkg = sep.Background(image)
-
 		data_sub = image - bkg
-
 		objects = sep.extract(data_sub, 2.5, err=bkg.globalrms)
 	except Exception:
 		print(filename)
