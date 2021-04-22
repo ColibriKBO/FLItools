@@ -328,19 +328,18 @@ if __name__ == "__main__":
 		# for thread in thread_list:
 		# 	thread.join()
 
-		# pool_size = 20
-		# pool = Pool(pool_size)
-		# for file in files:
-		# 	pool.apply_async(extractSourcesFromRCD, (file,biasimage,2048,2048,'low',))
+		pool_size = 12
+		pool = Pool(pool_size)
+		for file in fullpaths:
+			pool.apply_async(extractSourcesFromRCD, (file,biasimage,2048,2048,'low',))
+		pool.close()
+		pool.join()
 
-		# pool.close()
-		# pool.join()
-
-
-		p = Pool(12)
-		p.map(extractSourcesFromRCD2, fullpaths)
-		p.close()
-		p.join()
+		# Working Pool
+		# p = Pool(12)
+		# p.map(extractSourcesFromRCD2, fullpaths)
+		# p.close()
+		# p.join()
 
 
 		# for path in os.listdir(inputdir):
