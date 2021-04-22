@@ -333,9 +333,9 @@ if __name__ == "__main__":
 
 		files = []
 
-		for file in fullpaths:
-			if os.path.isfile(file):
-				files.append(file)
+		# for file in fullpaths:
+		# 	if os.path.isfile(file):
+		# 		files.append(file)
 
 		print('Starting...')
 		start_time = time.time()
