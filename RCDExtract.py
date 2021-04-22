@@ -331,7 +331,7 @@ if __name__ == "__main__":
 		pool_size = 12
 		pool = Pool(pool_size)
 		for file in fullpaths:
-			pool.apply_async(extractSourcesFromRCD, (file,biasimage,2048,2048,'low',))
+			pool.apply_async(extractSourcesFromRCD2, (file,))
 		pool.close()
 		pool.join()
 
