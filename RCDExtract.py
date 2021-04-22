@@ -363,18 +363,18 @@ if __name__ == "__main__":
 		# 	thread.join()
 
 		# Working 138ms/file
-		# pool_size = 12
-		# pool = Pool(pool_size)
-		# for file in fullpaths:
-		# 	pool.apply_async(extractSourcesFromRCD2, (file,))
-		# pool.close()
-		# pool.join()
+		pool_size = 12
+		pool = Pool(pool_size)
+		for file in fullpaths:
+			pool.apply_async(extractSourcesFromRCD2, (file,))
+		pool.close()
+		pool.join()
 
-		# Working Pool
-		p = Pool(12)
-		p.map(extractSourcesFromRCD2, fullpaths)
-		p.close()
-		p.join()
+		# Working Pool 130ms/frame with thresh=2.5
+		# p = Pool(12)
+		# p.map(extractSourcesFromRCD2, fullpaths)
+		# p.close()
+		# p.join()
 
 
 		# for path in os.listdir(inputdir):
