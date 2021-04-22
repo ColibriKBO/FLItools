@@ -266,7 +266,7 @@ if args.dir:
 
 	# print(list(files))
 
-	n_threads = 4
+	n_threads = 8
 	array_chunk = np.array_split(files,n_threads)
 	# print(array_chunk)
 	thread_list = []
