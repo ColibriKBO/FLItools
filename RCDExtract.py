@@ -179,6 +179,40 @@ def extractSourcesFromRCD2(filename):
 		print(filename)
 		print('Error with filename')
 
+def extractSourcesFromRCD3(array_chunk,bias,hnumpix,vnumpix,gain):
+	for filename in array_chunk:
+		try:
+			fid = open(filename, 'rb')
+			fid.seek(0,0)
+			magicnum = readxbytes(fid,4) # 4 bytes ('Meta')
+			# Check the magic number. If it doesn't match, exit function
+
+			fid.seek(152,0)
+			timestamp = readxbytes(fid,29)
+
+			# Load data portion of file
+			fid.seek(246,0)
+			# fid.seek(384,0)
+
+			table = np.fromfile(fid, dtype=np.uint8, count=12582912)
+			testimages = nb_read_data(table)
+			image = split_images(testimages, hnumpix, vnumpix, gain)
+			image = image.astype('int32')
+			image = image.copy(order='C')
+			fid.close()
+
+			image = subtractBias(image,biasimage)
+
+						# m, s = np.mean(image), np.std(image)
+			bkg = sep.Background(image)
+
+			data_sub = image - bkg
+
+			objects = sep.extract(data_sub, 1.5, err=bkg.globalrms)
+		except Exception:
+			print('filename')
+			print('Error with filename')
+
 # Start main program
 if __name__ == "__main__":
 	# if platform == 'linux' or platform == 'linux2':
@@ -299,9 +333,9 @@ if __name__ == "__main__":
 
 		files = []
 
-		# for file in fullpaths:
-		# 	if os.path.isfile(file):
-		# 		files.append(file)
+		for file in fullpaths:
+			if os.path.isfile(file):
+				files.append(file)
 		print('Starting...')
 		start_time = time.time()
 
@@ -317,23 +351,24 @@ if __name__ == "__main__":
 
 		# print(list(files))
 
-		# n_threads = 20
-		# array_chunk = np.array_split(files,n_threads)
-		# # print(array_chunk)
-		# thread_list = []
-		# for thr in range(n_threads):
-		# 	thread = threading.Thread(target=extractSourcesFromRCD, args=(array_chunk[thr],biasimage,width,height,imgain),)
-		# 	thread_list.append(thread)
-		# 	thread_list[thr].start()
-		# for thread in thread_list:
-		# 	thread.join()
+		n_threads = 20
+		array_chunk = np.array_split(files,n_threads)
+		# print(array_chunk)
+		thread_list = []
+		for thr in range(n_threads):
+			thread = threading.Thread(target=extractSourcesFromRCD3, args=(array_chunk[thr],biasimage,width,height,imgain),)
+			thread_list.append(thread)
+			thread_list[thr].start()
+		for thread in thread_list:
+			thread.join()
 
-		pool_size = 12
-		pool = Pool(pool_size)
-		for file in fullpaths:
-			pool.apply_async(extractSourcesFromRCD2, (file,))
-		pool.close()
-		pool.join()
+		# Working
+		# pool_size = 12
+		# pool = Pool(pool_size)
+		# for file in fullpaths:
+		# 	pool.apply_async(extractSourcesFromRCD2, (file,))
+		# pool.close()
+		# pool.join()
 
 		# Working Pool
 		# p = Pool(12)
