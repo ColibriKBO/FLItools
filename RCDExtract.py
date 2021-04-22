@@ -142,7 +142,7 @@ def extractSourcesFromRCD(filename,bias,hnumpix,vnumpix,gain):
 			print('')
 			print('Error with filename')
 
-def extractSourcesFromRCD2(filename):
+def extractSourcesFromRCD2(filename,biasimage):
 		hnumpix=2048
 		vnumpix=2048
 		gain = 'low'
@@ -166,7 +166,7 @@ def extractSourcesFromRCD2(filename):
 			image = image.copy(order='C')
 			fid.close()
 
-			#image = subtractBias(image,biasimage)
+			image = subtractBias(image,biasimage)
 
 						# m, s = np.mean(image), np.std(image)
 			bkg = sep.Background(image)
@@ -213,7 +213,7 @@ if args.bias:
 	bias = args.bias
 	biasimage, biastime = readRCD(bias, width, height, imgain)
 
-start_time = time.time()
+
 
 # if len(sys.argv) > 2:
 # 	imgain = sys.argv[2]
@@ -302,6 +302,7 @@ if args.dir:
 		if os.path.isfile(file):
 			files.append(file)
 
+	start_time = time.time()
 	# print(list(files))
 
 	# n_threads = 20
@@ -325,7 +326,7 @@ if args.dir:
 
 
 	p = Pool(16)
-	p.map(extractSourcesFromRCD2, files)
+	p.map(extractSourcesFromRCD2, (files,biasimage))
 	p.close()
 	p.join()
 
@@ -356,6 +357,7 @@ if args.dir:
 	# 			objects = sep.extract(data_sub, 1.5, err=bkg.globalrms)
 
 else:
+	start_time = time.time()
 	image, timestamp = readRCD(inputfile,width,height,imgain)
 	print(timestamp)
 
