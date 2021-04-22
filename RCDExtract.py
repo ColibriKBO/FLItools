@@ -143,7 +143,7 @@ def extractSourcesFromRCD(filename,bias,hnumpix,vnumpix,gain):
 			print('')
 			print('Error with filename')
 
-def extractSourcesFromRCD2(filename):
+def extractSourcesFromRCD2(filename,biasimage):
 	hnumpix=2048
 	vnumpix=2048
 	gain = 'low'
@@ -167,7 +167,7 @@ def extractSourcesFromRCD2(filename):
 		image = image.copy(order='C')
 		fid.close()
 
-		# image = subtractBias(image,biasimage)
+		image = subtractBias(image,biasimage)
 
 		# m, s = np.mean(image), np.std(image)
 		bkg = sep.Background(image)
@@ -366,7 +366,7 @@ if __name__ == "__main__":
 		pool_size = 12
 		pool = Pool(pool_size)
 		for file in fullpaths:
-			pool.apply_async(extractSourcesFromRCD2, (file,))
+			pool.apply_async(extractSourcesFromRCD2, (file,biasimage,))
 		pool.close()
 		pool.join()
 
