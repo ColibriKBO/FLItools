@@ -5,6 +5,7 @@ import time
 import numba as nb
 import sep
 import argparse
+import threading
 #import cv2
 
 from astropy.io import fits
@@ -106,6 +107,39 @@ def subtractBias(image, bias):
 	bias_sub = np.subtract(image,bias)
 	return bias_sub
 
+def extractSourcesFromRCD(filename_chunk,bias,hnumpix,vnumpix,gain):
+	for filename in filename_chunk:
+		try:
+			fid = open(filename, 'rb')
+			fid.seek(0,0)
+			magicnum = readxbytes(fid,4) # 4 bytes ('Meta')
+			# Check the magic number. If it doesn't match, exit function
+
+			fid.seek(152,0)
+			timestamp = readxbytes(fid,29)
+
+			# Load data portion of file
+			fid.seek(246,0)
+			# fid.seek(384,0)
+
+			table = np.fromfile(fid, dtype=np.uint8, count=12582912)
+			testimages = nb_read_data(table)
+			image = split_images(testimages, hnumpix, vnumpix, gain)
+			image = image.astype('int32')
+			image = image.copy(order='C')
+			fid.close()
+
+			image = subtractBias(image,biasimage)
+
+						# m, s = np.mean(image), np.std(image)
+			bkg = sep.Background(image)
+
+			data_sub = image - bkg
+
+			objects = sep.extract(data_sub, 1.5, err=bkg.globalrms)
+		except Exception:
+			print('Error with filename')
+
 # Start main program
 
 # if platform == 'linux' or platform == 'linux2':
@@ -125,7 +159,7 @@ if args.file:
 	inputfile = args.file
 elif args.dir:
 	inputdir = args.dir
-	print(inputdir)
+	# print(inputdir)
 else:
 	exit(0)
 
@@ -221,21 +255,52 @@ start_time = time.time()
 # fid.close()
 
 if args.dir:
-	for root, dirs, files in os.walk(inputdir):
-		for file in files:
-			if file.endswith('.rcd'):
-				image, timestamp = readRCD(root + '/' +file, width, height, imgain)
-				#print(timestamp)
 
-				if args.bias:
-					image = subtractBias(image,biasimage)
+	fullpaths = map(lambda name: os.path.join(inputdir, name), os.listdir(inputdir))
 
-				# m, s = np.mean(image), np.std(image)
-				bkg = sep.Background(image)
+	files = []
 
-				data_sub = image - bkg
+	for file in fullpaths:
+		if os.path.isfile(file):
+			files.append(file)
 
-				objects = sep.extract(data_sub, 1.5, err=bkg.globalrms)
+	# print(list(files))
+
+	n_threads = 4
+	array_chunk = np.array_split(files,n_threads)
+	# print(array_chunk)
+	thread_list = []
+	for thr in range(n_threads):
+		thread = threading.Thread(target=extractSourcesFromRCD, args=(array_chunk[thr],biasimage,width,height,imgain),)
+		thread_list.append(thread)
+		thread_list[thr].start()
+	for thread in thread_list:
+		thread.join()
+
+	# for path in os.listdir(inputdir):
+	# 	files = []
+	# 	full_path = os.path.join(inputdir, path)
+	# 	if os.path.isfile(full_path):
+	# 		print(full_path)
+
+
+
+	# for root, dirs, files in os.walk(inputdir):
+	# 	for file in files:
+	# 		# print(root+'/'+file)
+	# 		if file.endswith('.rcd'):
+	# 			image, timestamp = readRCD(root + '/' +file, width, height, imgain)
+	# 			#print(timestamp)
+
+	# 			if args.bias:
+	# 				image = subtractBias(image,biasimage)
+
+	# 			# m, s = np.mean(image), np.std(image)
+	# 			bkg = sep.Background(image)
+
+	# 			data_sub = image - bkg
+
+	# 			objects = sep.extract(data_sub, 1.5, err=bkg.globalrms)
 
 else:
 	image, timestamp = readRCD(inputfile,width,height,imgain)
