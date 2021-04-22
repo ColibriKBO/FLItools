@@ -336,6 +336,7 @@ if __name__ == "__main__":
 		for file in fullpaths:
 			if os.path.isfile(file):
 				files.append(file)
+
 		print('Starting...')
 		start_time = time.time()
 
@@ -351,7 +352,8 @@ if __name__ == "__main__":
 
 		# print(list(files))
 
-		n_threads = 20
+		# Working but slowest
+		n_threads = 12
 		array_chunk = np.array_split(files,n_threads)
 		# print(array_chunk)
 		thread_list = []
