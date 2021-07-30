@@ -57,7 +57,7 @@ def file_write(imagelist, fileformat, file):
 		hdr.set('SITELAT', latitude)
 		hdr.set('SITELONG', longitude)
 		hdr.set('CCD-TEMP', int(binascii.hexlify(sensorcoldtemp), 16))
-		hdu.writeto(file)
+		hdu.writeto(file, overwrite=True)
 
 def computelatlong(lat,lon): # Calculate Latitude and Longitude
 	degdivisor = 600000.0
@@ -89,12 +89,12 @@ if len(sys.argv) > 2:
 else:
 	imgain = 'low'	# Which image/s to work with. Options: low, high, both (still to implement)
 
-globpath = inputdir + '*.rcd'
+globpath = inputdir + '**\\*.rcd'
 print(globpath)
 
 start_time = time.time()
 
-for filename in glob.glob(globpath):
+for filename in glob.glob(globpath, recursive=True):
 	inputfile = os.path.splitext(filename)[0]
 	fitsfile = inputfile + '.fits'
 
@@ -134,7 +134,7 @@ for filename in glob.glob(globpath):
 	vnumpix = 2048
 
 	# Load data portion of file
-	fid.seek(246,0)
+	fid.seek(384,0)
 
 	table = np.fromfile(fid, dtype=np.uint8, count=12582912)
 	testimages = nb_read_data(table)
