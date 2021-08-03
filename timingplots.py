@@ -65,16 +65,19 @@ for inputdir in globpath1:
         #check if hour is bad, if so take hour from directory name and change header
         if int(hour) > 23:
 
-            print('Bad time: ', hour)
+            print('Bad time: ', filename, hour)
             
             #directory name has local hour, header has UTC hour, need to convert (+4)
             newLocalHour = int(inputdir.split('_')[1].split('.')[0])
-        
             if int(fileMinute) < int(dirMinute):
                 newUTCHour = newLocalHour + 4 + 1     #add 1 if hour changed over during minute
             else:
                 newUTCHour = newLocalHour + 4
-        
+            
+            #check if new hour is greater than 23:00 
+            if newUTCHour > 23:
+                newUTCHour = newUTCHour - 24
+
             #replace bad hour in timestamp string with correct hour
             newUTCHour = str(newUTCHour)
             newUTCHour = newUTCHour.zfill(2)
@@ -84,6 +87,7 @@ for inputdir in globpath1:
             #encode into bytes
             #newTimestamp = replaced.encode('utf-8')
             timestamp = replaced
+            print('new timestamp', timestamp)
         
         
 
