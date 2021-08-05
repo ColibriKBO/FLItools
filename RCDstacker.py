@@ -92,7 +92,6 @@ def stackBlats(impath,hiclips,loclips):
 	vnumpix = 2048
 
 	for filename in glob.glob(impath, recursive=True):
-		print(filename)
 		inputfile = os.path.splitext(filename)[0]
 
 		fid = open(filename, 'rb')
