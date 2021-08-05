@@ -175,7 +175,7 @@ if __name__ == '__main__':
 
 	start_time = time.time()
 
-	biasImage = stackBlats(biaspath,3,0)
+	biasImage = stackBlats(biaspath,0,0)
 	stackImage = stackImages(globpath,biasImage)
 	file_write(stackImage, 'fits', fitsfile)
 	file_write(biasImage, 'fits', biasfile)
