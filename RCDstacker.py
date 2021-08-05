@@ -171,13 +171,16 @@ if __name__ == '__main__':
 	globpath = inputdir + '**\\*.rcd'
 	biaspath = inputdir + '\\bias\\' + '**\\*.rcd'
 	fitsfile = inputdir + '\\stack.fts'
+	fitsfile2 = inputdir + '\\stack2.fts'
 	biasfile = inputdir + '\\bias.fts'
 
 	start_time = time.time()
 
-	biasImage = stackBlats(biaspath,0,0)
+	biasImage = stackBlats(biaspath,25,0)
 	stackImage = stackImages(globpath,biasImage)
+	stackImage2 = stackBlats(globpath,100,0)
 	file_write(stackImage, 'fits', fitsfile)
+	file_write(stackImage2, 'fits', fitsfile2)
 	file_write(biasImage, 'fits', biasfile)
 
 	print("--- %s seconds ---" % (time.time() - start_time))
