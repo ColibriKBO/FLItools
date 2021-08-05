@@ -81,15 +81,17 @@ def computelatlong(lat,lon): # Calculate Latitude and Longitude
 
 def stackBlats(impath,hiclips,loclips):
 	stackArray = np.zeros([2048,2048])
-	hiArray = np.zeros([2048,2048,hiclips])
-	loArray = np.zeros([2048,2048,loclips])
+	hiArray = np.zeros([2048,2048,hiclips+1])
+	loArray = np.zeros([2048,2048,loclips+1])
 	tempArray = np.zeros([2048,2048])
+	
 	stackcount = 0
 
 	hnumpix = 2048
 	vnumpix = 2048
 
 	for filename in glob.glob(impath, recursive=True):
+		print(filename)
 		inputfile = os.path.splitext(filename)[0]
 
 		fid = open(filename, 'rb')
@@ -106,10 +108,29 @@ def stackBlats(impath,hiclips,loclips):
 		# Section to clip data for bias
 		###
 		if hiclips > 0:
+			tempArray1 = np.zeros([2048,2048])
+			tempArray2 = np.zeros([2048,2048])
+			tempArray3 = np.zeros([2048,2048])
+			# hiArray = -np.sort(-hiArray,axis=2)
+
+			np.copyto(hiArray[:,:,-1],image)
 			hiArray = -np.sort(-hiArray,axis=2)
 
-			np.copyto(hiArray[:,:,-1],image,where=image>hiArray[:,:,-1])
-			np.copyto(tempArray,image,where=image<hiArray[:,:,-1])
+			np.copyto(tempArray,hiArray[:,:,-1])
+			# np.copyto(hiArray[:,:,-1],image,where=image>hiArray[:,:,-1])
+			# np.copyto(tempArray1,image,where=image<hiArray[:,:,-1])
+			# np.copyto(tempArray2,hiArray[:,:,-1],where=hiArray[:,:,-1]<image)
+			# tempArray3 = np.add(tempArray1,tempArray2)
+			# plt.imshow(tempArray2)
+			# plt.show()
+			# print(hiArray[1,0,:])
+			# print(tempArray1[1,0])
+
+			# for i in range(2048):
+			# 	for j in range(2048):
+			# 		if image[i,j] > hiArray[i,j,-1]:
+			# 			tempArray[i,j] = hiArray[i,j,-1]
+			# 			hiArray[i,j,-1] = image[i,j]
 
 			stackArray = np.add(stackArray,tempArray)
 		else:
@@ -166,9 +187,10 @@ if __name__ == '__main__':
 
 	start_time = time.time()
 
-	biasImage = stackBlats(biaspath,0,0)
+	biasImage = stackBlats(biaspath,3,0)
 	stackImage = stackImages(globpath,biasImage)
 	file_write(stackImage, 'fits', fitsfile)
+	file_write(biasImage, 'fits', 'C:\\Users\\Mike\\Downloads\\RCD\\bias.fits')
 
 	print("--- %s seconds ---" % (time.time() - start_time))
 

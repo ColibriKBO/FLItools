@@ -102,6 +102,7 @@ def readRCD(filename, hnumpix, vnumpix, gain):
 	image = image.astype('int32')
 	image = image.copy(order='C')
 	fid.close()
+
 	return image, timestamp
 
 def subtractBias(image, bias):
@@ -113,13 +114,13 @@ def extractSourcesFromRCD(filename,bias,hnumpix,vnumpix,gain):
 	
 		try:
 			fid = open(filename, 'rb')
-			fid.seek(0,0)
-			magicnum = readxbytes(fid,4) # 4 bytes ('Meta')
+			# fid.seek(0,0)
+			# magicnum = readxbytes(fid,4) # 4 bytes ('Meta')
 			# Check the magic number. If it doesn't match, exit function
 
 			fid.seek(152,0)
 			timestamp = readxbytes(fid,29)
-
+			print(timestamp)
 			# Load data portion of file
 			fid.seek(246,0)
 			# fid.seek(384,0)
@@ -133,7 +134,9 @@ def extractSourcesFromRCD(filename,bias,hnumpix,vnumpix,gain):
 
 			image = subtractBias(image,biasimage)
 
-						# m, s = np.mean(image), np.std(image)
+			# m, s = np.mean(image), np.std(image)
+			# Can we just run the background on the first image from every set?
+			# And bkg.globalrms can be calculated once...
 			bkg = sep.Background(image)
 
 			data_sub = image - bkg
@@ -149,13 +152,13 @@ def extractSourcesFromRCD2(filename,biasimage):
 	gain = 'low'
 	try:
 		fid = open(filename, 'rb')
-		fid.seek(0,0)
-		magicnum = readxbytes(fid,4) # 4 bytes ('Meta')
+		# fid.seek(0,0)
+		# magicnum = readxbytes(fid,4) # 4 bytes ('Meta')
 		# Check the magic number. If it doesn't match, exit function
 
 		fid.seek(152,0)
 		timestamp = readxbytes(fid,29)
-
+		print(timestamp)
 		# Load data portion of file
 		fid.seek(246,0)
 		# fid.seek(384,0)
@@ -173,21 +176,22 @@ def extractSourcesFromRCD2(filename,biasimage):
 		bkg = sep.Background(image)
 		data_sub = image - bkg
 		objects = sep.extract(data_sub, 2.5, err=bkg.globalrms)
+		print(objects)
 	except Exception:
 		print(filename)
 		print('Error with filename')
 
-def extractSourcesFromRCD3(array_chunk,bias,hnumpix,vnumpix,gain):
+def extractSourcesFromRCD3(array_chunk,bias,bkg,hnumpix,vnumpix,gain):
 	for filename in array_chunk:
 		try:
 			fid = open(filename, 'rb')
-			fid.seek(0,0)
-			magicnum = readxbytes(fid,4) # 4 bytes ('Meta')
+			# fid.seek(0,0)
+			# magicnum = readxbytes(fid,4) # 4 bytes ('Meta')
 			# Check the magic number. If it doesn't match, exit function
 
 			fid.seek(152,0)
 			timestamp = readxbytes(fid,29)
-
+			print(timestamp)
 			# Load data portion of file
 			fid.seek(246,0)
 			# fid.seek(384,0)
@@ -202,14 +206,49 @@ def extractSourcesFromRCD3(array_chunk,bias,hnumpix,vnumpix,gain):
 			image = subtractBias(image,biasimage)
 
 						# m, s = np.mean(image), np.std(image)
-			bkg = sep.Background(image)
+			# bkg = sep.Background(image)
 
 			data_sub = image - bkg
 
 			objects = sep.extract(data_sub, 1.5, err=bkg.globalrms)
+			print(objects)
 		except Exception:
 			print('filename')
 			print('Error with filename')
+
+def extractSourcesFromRCD4(filename,biasimage,bkg,bkg_rms):
+	hnumpix=2048
+	vnumpix=2048
+	gain = 'low'
+	try:
+		fid = open(filename, 'rb')
+		# fid.seek(0,0)
+		# magicnum = readxbytes(fid,4) # 4 bytes ('Meta')
+		# Check the magic number. If it doesn't match, exit function
+
+		fid.seek(152,0)
+		timestamp = readxbytes(fid,29)
+		print(timestamp)
+		# Load data portion of file
+		fid.seek(246,0)
+		# fid.seek(384,0)
+
+		table = np.fromfile(fid, dtype=np.uint8, count=12582912)
+		testimages = nb_read_data(table)
+		image = split_images(testimages, hnumpix, vnumpix, gain)
+		image = image.astype('int32')
+		image = image.copy(order='C')
+		fid.close()
+
+		image = subtractBias(image,biasimage)
+
+		# m, s = np.mean(image), np.std(image)
+		# bkg = sep.Background(image)
+		data_sub = image - bkg
+		objects = sep.extract(data_sub, 2.5, err=bkg_rms)
+	except Exception:
+		print(filename)
+		print('Error with filename')
 
 # Start main program
 if __name__ == "__main__":
@@ -328,12 +367,17 @@ if __name__ == "__main__":
 	if args.dir:
 
 		fullpaths = map(lambda name: os.path.join(inputdir, name), os.listdir(inputdir))
+		files = list(fullpaths)
 
-		files = []
+		image, timestamp = readRCD(files[0],2048,2048,'low')
+		print(files[0])
+		start_time = time.time()
+		bkg = sep.Background(image)
 
-		# for file in fullpaths:
-		# 	if os.path.isfile(file):
-		# 		files.append(file)
+		bkgrms = bkg.globalrms
+		end_time = time.time()
+		# print(end_time-start_time)
+		# print(bkgrms)
 
 		print('Starting...')
 		start_time = time.time()
@@ -362,13 +406,22 @@ if __name__ == "__main__":
 		# for thread in thread_list:
 		# 	thread.join()
 
-		# Working 138ms/file
+		# # Working 138ms/file
 		pool_size = 12
 		pool = Pool(pool_size)
-		for file in fullpaths:
+		for file in files:
 			pool.apply_async(extractSourcesFromRCD2, (file,biasimage,))
 		pool.close()
 		pool.join()
+
+		# Working 138ms/file
+		# pool_size = 12
+		# pool = Pool(pool_size)
+		# for file in files:
+		# 	print(file)
+		# 	pool.apply_async(extractSourcesFromRCD3, (file,biasimage,bkg,bkgrms,))
+		# pool.close()
+		# pool.join()
 
 		# Working Pool 130ms/frame with thresh=2.5
 		# p = Pool(12)
@@ -438,11 +491,11 @@ if __name__ == "__main__":
 		# plt.imshow(bkg_rms, interpolation='nearest')
 		# plt.colorbar()
 		# plt.show()
-
+		print('test')
 		data_sub = image - bkg
 
 		objects = sep.extract(data_sub, 1.5, err=bkg.globalrms)
-		# print(len(objects))
+		print(len(objects))
 
 
 	# # plot background-subtracted image
