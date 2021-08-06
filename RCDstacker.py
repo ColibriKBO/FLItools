@@ -108,21 +108,21 @@ def stackBlats(impath,hiclips,loclips):
 		###
 		# Section to clip data for bias
 		###
-		if hiclips > 0 & loclips == 0:
+		if (hiclips > 0) and (loclips == 0):
 
 			np.copyto(hiArray[:,:,-1],image)
 			hiArray = -np.sort(-hiArray,axis=2)
 			np.copyto(hiTempArray,hiArray[:,:,-1])
 			stackArray = np.add(stackArray,hiTempArray)
 
-		if hiclips == 0 & loclips > 0:
+		if (hiclips == 0) and (loclips > 0):
 			np.copyto(loArray[:,:,-1],image)
 			loArray = -np.sort(-loArray,axis=2)
 			np.copyto(loTempArray,loArray[:,:,0])
 			if stackcount > loclips:
 				stackArray = np.add(stackArray,loTempArray)
 
-		if hiclips > 0 & loclips > 0:
+		if (hiclips > 0) and (loclips > 0):
 			# Fill hiArray first
 			print('Yes!')
 			np.copyto(hiArray[:,:,-1],image)
@@ -137,7 +137,7 @@ def stackBlats(impath,hiclips,loclips):
 			if stackcount > loclips:
 				stackArray = np.add(stackArray,hiLoTempArray)
 
-		if hiclips == 0 & loclips == 0:
+		if (hiclips == 0) and (loclips == 0):
 			stackArray = np.add(stackArray,image)
 
 		stackcount += 1
