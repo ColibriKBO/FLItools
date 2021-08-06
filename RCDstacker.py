@@ -132,6 +132,7 @@ def stackBlats(impath,hiclips,loclips):
 			np.copyto(loArray[:,:,-1],hiArray[:,:,-1])
 			loArray = -np.sort(-loArray,axis=2)
 			np.copyto(hiLoTempArray,loArray[:,:,0])
+			print(loArray)
 			if stackcount > loclips:
 				stackArray = np.add(stackArray,hiLoTempArray)
 
