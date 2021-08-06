@@ -124,6 +124,7 @@ def stackBlats(impath,hiclips,loclips):
 
 		if hiclips > 0 & loclips > 0:
 			# Fill hiArray first
+			print('Yes!')
 			np.copyto(hiArray[:,:,-1],image)
 			hiArray = -np.sort(-hiArray,axis=2)
 			np.copyto(hiTempArray,hiArray[:,:,-1])
