@@ -85,6 +85,7 @@ def stackBlats(impath,hiclips,loclips):
 	loArray = np.zeros([2048,2048,loclips+1])
 	hiTempArray = np.zeros([2048,2048])
 	loTempArray = np.zeros([2048,2048])
+	hiLoTempArray = np.zeros([2048,2048])
 	
 	stackcount = 0
 
@@ -116,16 +117,30 @@ def stackBlats(impath,hiclips,loclips):
 
 		if hiclips == 0 & loclips > 0:
 			np.copyto(loArray[:,:,-1],image)
-			loArray = np.sort(-loArray,axis=2)
-			np.copyto(loTempArray,loArray[:,:,-1])
-			stackArray = np.add(stackArray,loTempArray)
+			loArray = -np.sort(-loArray,axis=2)
+			np.copyto(loTempArray,loArray[:,:,0])
+			if stackcount > loclips:
+				stackArray = np.add(stackArray,loTempArray)
+
+		if hiclips > 0 & loclips > 0:
+			# Fill hiArray first
+			np.copyto(hiArray[:,:,-1],image)
+			hiArray = -np.sort(-hiArray,axis=2)
+			np.copyto(hiTempArray,hiArray[:,:,-1])
+
+			# Copy lowest pixels from hiArray to loArray
+			np.copyto(loArray[:,:,-1],hiArray[:,:,-1])
+			loArray = -np.sort(-loArray,axis=2)
+			np.copyto(hiLoTempArray,loArray[:,:,0])
+			if stackcount > loclips:
+				stackArray = np.add(stackArray,hiLoTempArray)
 
 		if hiclips == 0 & loclips == 0:
 			stackArray = np.add(stackArray,image)
 
 		stackcount += 1
 
-	biasimage = stackArray/(stackcount-hiclips)
+	biasimage = stackArray/(stackcount-hiclips-loclips)
 
 	return biasimage
 
@@ -176,9 +191,9 @@ if __name__ == '__main__':
 
 	start_time = time.time()
 
-	biasImage = stackBlats(biaspath,25,0)
+	biasImage = stackBlats(biaspath,5,5)
 	stackImage = stackImages(globpath,biasImage)
-	stackImage2 = stackBlats(globpath,100,0)
+	# stackImage2 = stackBlats(globpath,100,0)
 	file_write(stackImage, 'fits', fitsfile)
 	file_write(stackImage2, 'fits', fitsfile2)
 	file_write(biasImage, 'fits', biasfile)
