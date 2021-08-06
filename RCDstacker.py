@@ -129,9 +129,10 @@ def stackBlats(impath,hiclips,loclips):
 			np.copyto(hiTempArray,hiArray[:,:,-1])
 
 			# Copy lowest pixels from hiArray to loArray
-			np.copyto(loArray[:,:,-1],hiArray[:,:,-1])
+			np.copyto(loArray[:,:,-1],hiTempArray)
 			loArray = -np.sort(-loArray,axis=2)
 			np.copyto(hiLoTempArray,loArray[:,:,0])
+			print(loArray[5,5,0])
 			print(loArray[5,5,:])
 			if stackcount > loclips:
 				stackArray = np.add(stackArray,hiLoTempArray)
