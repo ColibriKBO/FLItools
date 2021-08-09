@@ -57,6 +57,7 @@ def file_write(imagelist, fileformat, file):
 		hdr.set('SITELAT', latitude)
 		hdr.set('SITELONG', longitude)
 		hdr.set('CCD-TEMP', int(binascii.hexlify(sensorcoldtemp), 16))
+		hdr.set('CAMERA-SN', str(serialnum, 'utf-8'))
 		hdu.writeto(file, overwrite=True)
 
 def computelatlong(lat,lon): # Calculate Latitude and Longitude
@@ -105,6 +106,8 @@ for filename in glob.glob(globpath, recursive=True):
 	# hpixels = readxbytes(2) # Number of horizontal pixels
 	# fid.seek(83,0)
 	# vpixels = readxbytes(2) # Number of vertical pixels
+	fid.seek(63,0)
+	serialnum = readxbytes(9) # Serial number of camera
 	fid.seek(85,0)
 	exptime = readxbytes(4) # Exposure time in 10.32us periods
 	fid.seek(89,0)
