@@ -52,12 +52,12 @@ def file_write(imagelist, fileformat, file):
 		latitude, longitude = computelatlong(hdict['lat'],hdict['lon'])
 		hdu = fits.PrimaryHDU(imagelist)
 		hdr = hdu.header
-		hdr.set('exptime', int(binascii.hexlify(exptime), 16) * 10.32 / 1000000)
-		hdr.set('DATE-OBS', str(timestamp, 'utf-8'))
+		hdr.set('exptime', int(binascii.hexlify(hdict['exptime']), 16) * 10.32 / 1000000)
+		hdr.set('DATE-OBS', str(hdict['timestamp'], 'utf-8'))
 		hdr.set('SITELAT', latitude)
 		hdr.set('SITELONG', longitude)
-		hdr.set('CCD-TEMP', int(binascii.hexlify(sensorcoldtemp), 16))
-		hdr.set('CAM-SN', str(serialnum, 'utf-8'))
+		hdr.set('CCD-TEMP', int(binascii.hexlify(hdict['sensorcoldtemp']), 16))
+		hdr.set('CAM-SN', str(hdict['serialnum'], 'utf-8'))
 		hdu.writeto(file, overwrite=True)
 
 def computelatlong(lat,lon): # Calculate Latitude and Longitude
