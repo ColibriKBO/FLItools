@@ -87,11 +87,13 @@ def readRCD(filename):
 
 	fid = open(filename, 'rb')
 	fid.seek(0,0)
+	
 	# magicnum = readxbytes(4) # 4 bytes ('Meta')
 	# fid.seek(81,0)
 	# hpixels = readxbytes(2) # Number of horizontal pixels
 	# fid.seek(83,0)
 	# vpixels = readxbytes(2) # Number of vertical pixels
+
 	fid.seek(63,0)
 	hdict['serialnum'] = readxbytes(fid, 9) # Serial number of camera
 	fid.seek(85,0)
@@ -100,10 +102,12 @@ def readRCD(filename):
 	hdict['sensorcoldtemp'] = readxbytes(fid, 2)
 	fid.seek(91,0)
 	hdict['sensortemp'] = readxbytes(fid, 2)
+
 	# fid.seek(99,0)
 	# hbinning = readxbytes(1)
 	# fid.seek(100,0)
 	# vbinning = readxbytes(1)
+
 	fid.seek(141,0)
 	hdict['basetemp'] = readxbytes(fid, 2) # Sensor base temperature
 	fid.seek(152,0)
@@ -119,7 +123,6 @@ def readRCD(filename):
 	# vpix = int(binascii.hexlify(vpixels),16)
 	# hnumpix = int(hpix / hbin)
 	# vnumpix = int(vpix / vbin)
-
 
 	# Load data portion of file
 	fid.seek(384,0)
@@ -160,6 +163,6 @@ if __name__ == '__main__':
 		# 	image1 = split_images(testimages, hnumpix, vnumpix, 'low')
 		# 	image2 = split_images(testimages, hnumpix, vnumpix, 'high')
 
-		file_write(image, 'fits', fitsfile)
+		# file_write(image, 'fits', fitsfile)
 
 	print("--- %s seconds ---" % (time.time() - start_time))
