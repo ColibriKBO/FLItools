@@ -85,9 +85,6 @@ def readRCD(filename):
 
 	hdict = {}
 
-	inputfile = os.path.splitext(filename)[0]
-	fitsfile = inputfile + '.fits'
-
 	fid = open(filename, 'rb')
 	fid.seek(0,0)
 	# magicnum = readxbytes(4) # 4 bytes ('Meta')
@@ -149,6 +146,8 @@ vnumpix = 2048
 start_time = time.time()
 
 for filename in glob.glob(globpath, recursive=True):
+	inputfile = os.path.splitext(filename)[0]
+	fitsfile = inputfile + '.fits'
 
 	table, hdict = readRCD(filename)
 
