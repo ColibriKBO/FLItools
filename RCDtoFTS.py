@@ -127,43 +127,39 @@ def readRCD(filename):
 	table = np.fromfile(fid, dtype=np.uint8, count=12582912)
 
 	return table, hdict
+
 # Start main program
+if __name__ == '__main__':
+	if len(sys.argv) > 1:
+		inputdir = sys.argv[1]
 
-if len(sys.argv) > 1:
-	inputdir = sys.argv[1]
+	if len(sys.argv) > 2:
+		imgain = sys.argv[2]
+	else:
+		imgain = 'low'	# Which image/s to work with. Options: low, high, both (still to implement)
 
-if len(sys.argv) > 2:
-	imgain = sys.argv[2]
-else:
-	imgain = 'low'	# Which image/s to work with. Options: low, high, both (still to implement)
+	globpath = inputdir + '**\\*.rcd'
+	print(globpath)
 
-globpath = inputdir + '**\\*.rcd'
-print(globpath)
+	hnumpix = 2048
+	vnumpix = 2048
 
-hnumpix = 2048
-vnumpix = 2048
+	start_time = time.time()
 
-start_time = time.time()
+	for filename in glob.glob(globpath, recursive=True):
+		inputfile = os.path.splitext(filename)[0]
+		fitsfile = inputfile + '.fits'
 
-for filename in glob.glob(globpath, recursive=True):
-	inputfile = os.path.splitext(filename)[0]
-	fitsfile = inputfile + '.fits'
+		table, hdict = readRCD(filename)
 
-	table, hdict = readRCD(filename)
+		testimages = nb_read_data(table)
 
-	testimages = nb_read_data(table)
+		image = split_images(testimages, hnumpix, vnumpix, imgain)
 
-	image = split_images(testimages, hnumpix, vnumpix, imgain)
+		# if imgain == 'both':
+		# 	image1 = split_images(testimages, hnumpix, vnumpix, 'low')
+		# 	image2 = split_images(testimages, hnumpix, vnumpix, 'high')
 
-	# if imgain == 'both':
-	# 	image1 = split_images(testimages, hnumpix, vnumpix, 'low')
-	# 	image2 = split_images(testimages, hnumpix, vnumpix, 'high')
+		file_write(image, 'fits', fitsfile)
 
-	# image = split_images(testimages, hnumpix, vnumpix, imgain)
-
-	#image = image / (np.mean(image)/32000.0)
-
-	file_write(image, 'fits', fitsfile)
-	# imageio.imwrite(inputfile + '.png', image)
-
-print("--- %s seconds ---" % (time.time() - start_time))
+	print("--- %s seconds ---" % (time.time() - start_time))
