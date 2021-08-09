@@ -8,7 +8,7 @@ import imageio
 from astropy.io import fits
 from sys import platform
 
-def readxbytes(numbytes):
+def readxbytes(fid, numbytes):
 	for i in range(1):
 		data = fid.read(numbytes)
 		if not data:
@@ -96,25 +96,25 @@ def readRCD(filename):
 	# fid.seek(83,0)
 	# vpixels = readxbytes(2) # Number of vertical pixels
 	fid.seek(63,0)
-	hdict['serialnum'] = readxbytes(9) # Serial number of camera
+	hdict['serialnum'] = readxbytes(fid, 9) # Serial number of camera
 	fid.seek(85,0)
-	hdict['exptime'] = readxbytes(4) # Exposure time in 10.32us periods
+	hdict['exptime'] = readxbytes(fid, 4) # Exposure time in 10.32us periods
 	fid.seek(89,0)
-	hdict['sensorcoldtemp'] = readxbytes(2)
+	hdict['sensorcoldtemp'] = readxbytes(fid, 2)
 	fid.seek(91,0)
-	hdict['sensortemp'] = readxbytes(2)
+	hdict['sensortemp'] = readxbytes(fid, 2)
 	# fid.seek(99,0)
 	# hbinning = readxbytes(1)
 	# fid.seek(100,0)
 	# vbinning = readxbytes(1)
 	fid.seek(141,0)
-	hdict['basetemp'] = readxbytes(2) # Sensor base temperature
+	hdict['basetemp'] = readxbytes(fid, 2) # Sensor base temperature
 	fid.seek(152,0)
-	hdict['timestamp'] = readxbytes(29)
+	hdict['timestamp'] = readxbytes(fid, 29)
 	fid.seek(182,0)
-	hdict['lat'] = readxbytes(4)
+	hdict['lat'] = readxbytes(fid, 4)
 	fid.seek(186,0)
-	hdict['lon'] = readxbytes(4)
+	hdict['lon'] = readxbytes(fid, 4)
 
 	# hbin = int(binascii.hexlify(hbinning),16)
 	# vbin = int(binascii.hexlify(vbinning),16)
