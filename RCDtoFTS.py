@@ -163,6 +163,6 @@ if __name__ == '__main__':
 		# 	image1 = split_images(testimages, hnumpix, vnumpix, 'low')
 		# 	image2 = split_images(testimages, hnumpix, vnumpix, 'high')
 
-		# file_write(image, 'fits', fitsfile)
+		file_write(image, 'fits', fitsfile)
 
 	print("--- %s seconds ---" % (time.time() - start_time))
