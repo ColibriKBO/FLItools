@@ -49,7 +49,7 @@ def split_images(data,pix_h,pix_v,gain):
 
 def file_write(imagelist, fileformat, file):
 	if fileformat == 'fits':
-		latitude, longitude = computelatlong(lat,lon)
+		latitude, longitude = computelatlong(hdict['lat'],hdict['lon'])
 		hdu = fits.PrimaryHDU(imagelist)
 		hdr = hdu.header
 		hdr.set('exptime', int(binascii.hexlify(exptime), 16) * 10.32 / 1000000)
@@ -81,54 +81,55 @@ def computelatlong(lat,lon): # Calculate Latitude and Longitude
 	return latitude, longitude
 
 
-def readRCD(path):
-	for filename in glob.glob(path, recursive=True):
-		inputfile = os.path.splitext(filename)[0]
-		fitsfile = inputfile + '.fits'
+def readRCD(filename):
 
-		fid = open(filename, 'rb')
-		fid.seek(0,0)
-		# magicnum = readxbytes(4) # 4 bytes ('Meta')
-		# fid.seek(81,0)
-		# hpixels = readxbytes(2) # Number of horizontal pixels
-		# fid.seek(83,0)
-		# vpixels = readxbytes(2) # Number of vertical pixels
-		fid.seek(63,0)
-		serialnum = readxbytes(9) # Serial number of camera
-		fid.seek(85,0)
-		exptime = readxbytes(4) # Exposure time in 10.32us periods
-		fid.seek(89,0)
-		sensorcoldtemp = readxbytes(2)
-		fid.seek(91,0)
-		sensortemp = readxbytes(2)
-		# fid.seek(99,0)
-		# hbinning = readxbytes(1)
-		# fid.seek(100,0)
-		# vbinning = readxbytes(1)
-		fid.seek(141,0)
-		basetemp = readxbytes(2) # Sensor base temperature
-		fid.seek(152,0)
-		timestamp = readxbytes(29)
-		fid.seek(182,0)
-		lat = readxbytes(4)
-		fid.seek(186,0)
-		lon = readxbytes(4)
+	hdict = {}
 
-		# hbin = int(binascii.hexlify(hbinning),16)
-		# vbin = int(binascii.hexlify(vbinning),16)
-		# hpix = int(binascii.hexlify(hpixels),16)
-		# vpix = int(binascii.hexlify(vpixels),16)
-		# hnumpix = int(hpix / hbin)
-		# vnumpix = int(vpix / vbin)
-		hnumpix = 2048
-		vnumpix = 2048
+	inputfile = os.path.splitext(filename)[0]
+	fitsfile = inputfile + '.fits'
 
-		# Load data portion of file
-		fid.seek(384,0)
+	fid = open(filename, 'rb')
+	fid.seek(0,0)
+	# magicnum = readxbytes(4) # 4 bytes ('Meta')
+	# fid.seek(81,0)
+	# hpixels = readxbytes(2) # Number of horizontal pixels
+	# fid.seek(83,0)
+	# vpixels = readxbytes(2) # Number of vertical pixels
+	fid.seek(63,0)
+	hdict['serialnum'] = readxbytes(9) # Serial number of camera
+	fid.seek(85,0)
+	hdict['exptime'] = readxbytes(4) # Exposure time in 10.32us periods
+	fid.seek(89,0)
+	hdict['sensorcoldtemp'] = readxbytes(2)
+	fid.seek(91,0)
+	hdict['sensortemp'] = readxbytes(2)
+	# fid.seek(99,0)
+	# hbinning = readxbytes(1)
+	# fid.seek(100,0)
+	# vbinning = readxbytes(1)
+	fid.seek(141,0)
+	hdict['basetemp'] = readxbytes(2) # Sensor base temperature
+	fid.seek(152,0)
+	hdict['timestamp'] = readxbytes(29)
+	fid.seek(182,0)
+	hdict['lat'] = readxbytes(4)
+	fid.seek(186,0)
+	hdict['lon'] = readxbytes(4)
 
-		table = np.fromfile(fid, dtype=np.uint8, count=12582912)
+	# hbin = int(binascii.hexlify(hbinning),16)
+	# vbin = int(binascii.hexlify(vbinning),16)
+	# hpix = int(binascii.hexlify(hpixels),16)
+	# vpix = int(binascii.hexlify(vpixels),16)
+	# hnumpix = int(hpix / hbin)
+	# vnumpix = int(vpix / vbin)
 
-		return table
+
+	# Load data portion of file
+	fid.seek(384,0)
+
+	table = np.fromfile(fid, dtype=np.uint8, count=12582912)
+
+	return table, hdict
 # Start main program
 
 if len(sys.argv) > 1:
@@ -142,9 +143,14 @@ else:
 globpath = inputdir + '**\\*.rcd'
 print(globpath)
 
+hnumpix = 2048
+vnumpix = 2048
+
 start_time = time.time()
 
-	table = readRCD(globpath)
+for filename in glob.glob(globpath, recursive=True):
+
+	table, hdict = readRCD(filename)
 
 	testimages = nb_read_data(table)
 
@@ -154,7 +160,7 @@ start_time = time.time()
 	# 	image1 = split_images(testimages, hnumpix, vnumpix, 'low')
 	# 	image2 = split_images(testimages, hnumpix, vnumpix, 'high')
 
-	image = split_images(testimages, hnumpix, vnumpix, imgain)
+	# image = split_images(testimages, hnumpix, vnumpix, imgain)
 
 	#image = image / (np.mean(image)/32000.0)
 
