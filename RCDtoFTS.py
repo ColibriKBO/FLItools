@@ -153,29 +153,3 @@ for filename in glob.glob(globpath, recursive=True):
 	# imageio.imwrite(inputfile + '.png', image)
 
 print("--- %s seconds ---" % (time.time() - start_time))
-
-# Vid file header...
-# uint32  magic   four byte "magic number"
-#                 should always be 809789782
-# uint32  seqlen  total byte length of frame+header
-# uint32  headlen byte length of the header
-# uint32  flags   if (flags & 64) then frame has a problem
-#                 "problem" is poorly defined
-# uint32  seq     sequence number - count of frames since
-#                 a recording run started, begins at 0.
-#                 Should always increase by 1 - anything else
-#                 indicates a frame may have been dropped.
-# int32   ts      seconds since the UNIX epoch
-# int32   tu      microseconds elapsed since last second (ts) began
-# int16   num     station identifier number
-# int16   wid     frame width, in pixels
-# int16   ht      frame height, in pixels
-# int16   depth   bit-depth of image
-# uint16  hx      not used in this system - ignore
-# uint16  ht      bit used in this system - ignore
-# uint16  str     stream ID for sites w/ multiple cameras
-# uint16  reserved0 (unused)
-# uint32  expose  exposure time in milliseconds (unused)
-# uint32  reserved2 (unused)
-# char[64] text   string containing a short description of the
-#                 .vid file contents (ex "Elgin_SN09149652_EM100")
