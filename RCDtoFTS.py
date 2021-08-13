@@ -57,7 +57,7 @@ def file_write(imagelist, fileformat, file):
 		hdr.set('SITELAT', latitude)
 		hdr.set('SITELONG', longitude)
 		hdr.set('CCD-TEMP', int(binascii.hexlify(hdict['sensorcoldtemp']), 16))
-		hdr.set('CAM-SN', str(hdict['serialnum'], 'utf-8'))
+		hdr.set('SERIAL', str(hdict['serialnum'], 'utf-8'))
 		hdu.writeto(file, overwrite=True)
 
 def computelatlong(lat,lon): # Calculate Latitude and Longitude
