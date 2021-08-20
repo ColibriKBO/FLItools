@@ -175,7 +175,7 @@ def stackImages(impath, bias):
 	return imagestack
 
 def stackMax(impath, bias):
-	stackArray = np.zeros([2048,2048])
+	maximage = np.zeros([2048,2048])
 	hiArray = np.zeros([2048,2048,2])
 	hiTempArray = np.zeros([2048,2048])
 	loTempArray = np.zeros([2048,2048])
@@ -246,7 +246,7 @@ if __name__ == '__main__':
 	# stackImage = stackImages(globpath,biasImage)
 	maxImage = stackMax(globpath,biasImage)
 
-	file_write(stackImage, 'fits', fitsfile)
+	file_write(maxImage, 'fits', fitsfile)
 	file_write(biasImage, 'fits', biasfile)
 
 	print("--- %s seconds ---" % (time.time() - start_time))
