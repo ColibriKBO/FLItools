@@ -252,6 +252,8 @@ if __name__ == '__main__':
 			maxImage = np.subtract(maxImage,biasImage)
 
 			# file_write(maxImage, 'fits', fitsfile)
+			print(np.max(maxImage))
+			print(np.min(maxImage))
 			plt.imsave(fitsfile, maxImage, vmin=60, vmax=110)
 		# file_write(biasImage, 'fits', biasfile)
 
