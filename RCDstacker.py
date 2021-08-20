@@ -197,7 +197,7 @@ def stackMax(impath, bias):
 		testimages = nb_read_data(table)
 
 		image = split_images(testimages, hnumpix, vnumpix, imgain)
-		image = np.subtract(image,bias)
+		# image = np.subtract(image,bias)
 
 		###
 		# Section to clip data for bias
@@ -245,6 +245,7 @@ if __name__ == '__main__':
 	biasImage = stackBlats(biaspath,hiclips,loclips)
 	# stackImage = stackImages(globpath,biasImage)
 	maxImage = stackMax(globpath,biasImage)
+	maxImage = np.subtract(maxImage,biasImage)
 
 	file_write(maxImage, 'fits', fitsfile)
 	file_write(biasImage, 'fits', biasfile)
