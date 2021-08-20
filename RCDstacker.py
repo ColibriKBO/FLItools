@@ -248,13 +248,13 @@ if __name__ == '__main__':
 			# biasImage = stackBlats(biaspath,hiclips,loclips)
 			biasImage = stackMax(biaspath)
 			# stackImage = stackImages(globpath,biasImage)
-			maxImage = stackMax(globpath)
+			maxImage = stackMax(globpath)+100
 			maxImage = np.subtract(maxImage,biasImage)
 
 			# file_write(maxImage, 'fits', fitsfile)
 			print(np.max(maxImage))
 			print(np.min(maxImage))
-			plt.imsave(fitsfile, maxImage, vmin=60, vmax=110)
+			plt.imsave(fitsfile, maxImage, vmin=80, vmax=130)
 		# file_write(biasImage, 'fits', biasfile)
 
 			print("Finished stacking in %s seconds" % (time.time() - start_time))
