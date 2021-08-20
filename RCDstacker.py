@@ -239,7 +239,7 @@ if __name__ == '__main__':
 		for directory in dirs:
 			print('Entering ' + inputdir + '\\' + directory + ' to start stacking.')
 			globpath = inputdir + '\\' + directory + '**\\*.rcd'
-			biaspath = inputdir + '\\' + directory + '\\..\\bias\\' + '**\\*.rcd'
+			biaspath = inputdir + '\\bias\\*.rcd'
 			fitsfile = inputdir + '\\' + directory + '_max.png'
 			biasfile = inputdir + '\\bias.fts'
 
