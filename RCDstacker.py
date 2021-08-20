@@ -252,7 +252,7 @@ if __name__ == '__main__':
 			maxImage = np.subtract(maxImage,biasImage)
 
 			# file_write(maxImage, 'fits', fitsfile)
-			plt.imsave(fitsfile, maxImage)
+			plt.imsave(fitsfile, maxImage, vmin=60, vmax=110)
 		# file_write(biasImage, 'fits', biasfile)
 
 			print("Finished stacking in %s seconds" % (time.time() - start_time))
