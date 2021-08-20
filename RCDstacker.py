@@ -236,7 +236,7 @@ if __name__ == '__main__':
 		loclips = 0
 
 	globpath = inputdir + '**\\*.rcd'
-	biaspath = inputdir + '\\bias\\' + '**\\*.rcd'
+	biaspath = inputdir + '\\..\\bias\\' + '**\\*.rcd'
 	fitsfile = inputdir + '\\stack.fts'
 	biasfile = inputdir + '\\bias.fts'
 
@@ -254,5 +254,5 @@ if __name__ == '__main__':
 	plt.imshow(biasImage, vmin=80, vmax=120)
 	plt.show()
 
-	plt.imshow(stackImage+5, vmin=0, vmax=30)
+	plt.imshow(maxImage+5, vmin=0, vmax=30)
 	plt.show()
