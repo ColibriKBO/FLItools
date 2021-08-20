@@ -254,7 +254,8 @@ if __name__ == '__main__':
 			# file_write(maxImage, 'fits', fitsfile)
 			print(np.max(maxImage))
 			print(np.min(maxImage))
-			plt.imsave(fitsfile, maxImage)
+			# plt.imsave(fitsfile, maxImage)
+			imageio.imwrite(fitsfile,maxImage)
 			# plt.imsave(biasfile, biasImage)
 		# file_write(biasImage, 'fits', biasfile)
 
