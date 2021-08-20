@@ -240,7 +240,7 @@ if __name__ == '__main__':
 			print('Entering ' + inputdir + '\\' + directory + ' to start stacking.')
 			globpath = inputdir + '\\' + directory + '**\\*.rcd'
 			biaspath = inputdir + '\\' + directory + '\\..\\bias\\' + '**\\*.rcd'
-			fitsfile = inputdir + '\\' + directory + '_max.fts'
+			fitsfile = inputdir + '\\' + directory + '_max.png'
 			biasfile = inputdir + '\\bias.fts'
 
 			start_time = time.time()
@@ -251,7 +251,8 @@ if __name__ == '__main__':
 			maxImage = stackMax(globpath)
 			maxImage = np.subtract(maxImage,biasImage)
 
-			file_write(maxImage, 'fits', fitsfile)
+			# file_write(maxImage, 'fits', fitsfile)
+			plt.imsave(fitsfile, maxImage)
 		# file_write(biasImage, 'fits', biasfile)
 
 			print("Finished stacking in %s seconds" % (time.time() - start_time))
