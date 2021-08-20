@@ -255,7 +255,7 @@ if __name__ == '__main__':
 		# file_write(biasImage, 'fits', biasfile)
 
 			print("Finished stacking in %s seconds" % (time.time() - start_time))
-		return
+	
 
 	# plt.imshow(biasImage, vmin=80, vmax=120)
 	# plt.show()
