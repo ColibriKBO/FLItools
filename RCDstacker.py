@@ -174,6 +174,46 @@ def stackImages(impath, bias):
 
 	return imagestack
 
+def stackMax(impath, bias):
+	stackArray = np.zeros([2048,2048])
+	hiArray = np.zeros([2048,2048,2])
+	hiTempArray = np.zeros([2048,2048])
+	loTempArray = np.zeros([2048,2048])
+	
+	stackcount = 0
+
+	hnumpix = 2048
+	vnumpix = 2048
+
+	for filename in glob.glob(impath, recursive=True):
+		inputfile = os.path.splitext(filename)[0]
+
+		fid = open(filename, 'rb')
+
+		# Load data portion of file
+		fid.seek(384,0)
+
+		table = np.fromfile(fid, dtype=np.uint8, count=12582912)
+		testimages = nb_read_data(table)
+
+		image = split_images(testimages, hnumpix, vnumpix, imgain)
+		image = np.subtract(image,bias)
+
+		###
+		# Section to clip data for bias
+		###
+
+		np.copyto(hiArray[:,:,-1],image)
+		hiArray = -np.sort(-hiArray,axis=2)
+		np.copyto(hiTempArray,hiArray[:,:,-1])
+
+
+		stackcount += 1
+
+	np.copyto(maximage,hiArray[:,:,0])
+
+	return maximage
+
 # Start main program
 if __name__ == '__main__':
 
@@ -203,7 +243,8 @@ if __name__ == '__main__':
 	start_time = time.time()
 
 	biasImage = stackBlats(biaspath,hiclips,loclips)
-	stackImage = stackImages(globpath,biasImage)
+	# stackImage = stackImages(globpath,biasImage)
+	maxImage = stackMax(globpath,biasImage)
 
 	file_write(stackImage, 'fits', fitsfile)
 	file_write(biasImage, 'fits', biasfile)
