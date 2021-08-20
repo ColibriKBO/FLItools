@@ -235,6 +235,9 @@ if __name__ == '__main__':
 	else:
 		loclips = 0
 
+	for (path, dirs, files) in os.walk(inputdir):
+		print(path)
+
 	globpath = inputdir + '**\\*.rcd'
 	biaspath = inputdir + '\\..\\bias\\' + '**\\*.rcd'
 	fitsfile = inputdir + '\\stack.fts'
