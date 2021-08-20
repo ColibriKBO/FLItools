@@ -236,28 +236,28 @@ if __name__ == '__main__':
 		loclips = 0
 
 	for (path, dirs, files) in os.walk(inputdir):
-		print(path)
+		print(dirs)
 
-	globpath = inputdir + '**\\*.rcd'
-	biaspath = inputdir + '\\..\\bias\\' + '**\\*.rcd'
-	fitsfile = inputdir + '\\stack.fts'
-	biasfile = inputdir + '\\bias.fts'
+		globpath = path + '**\\*.rcd'
+		biaspath = path + '\\..\\bias\\' + '**\\*.rcd'
+		fitsfile = path + '\\stack.fts'
+		biasfile = path + '\\bias.fts'
 
-	start_time = time.time()
+		start_time = time.time()
 
-	# biasImage = stackBlats(biaspath,hiclips,loclips)
-	biasImage = stackMax(biaspath)
-	# stackImage = stackImages(globpath,biasImage)
-	maxImage = stackMax(globpath)
-	maxImage = np.subtract(maxImage,biasImage)
+		# biasImage = stackBlats(biaspath,hiclips,loclips)
+		biasImage = stackMax(biaspath)
+		# stackImage = stackImages(globpath,biasImage)
+		maxImage = stackMax(globpath)
+		maxImage = np.subtract(maxImage,biasImage)
 
-	file_write(maxImage, 'fits', fitsfile)
-	file_write(biasImage, 'fits', biasfile)
+		file_write(maxImage, 'fits', fitsfile)
+	# file_write(biasImage, 'fits', biasfile)
 
-	print("--- %s seconds ---" % (time.time() - start_time))
+		print("--- %s seconds ---" % (time.time() - start_time))
 
-	plt.imshow(biasImage, vmin=80, vmax=120)
-	plt.show()
+	# plt.imshow(biasImage, vmin=80, vmax=120)
+	# plt.show()
 
-	plt.imshow(maxImage+5, vmin=0, vmax=30)
-	plt.show()
+	# plt.imshow(maxImage+5, vmin=0, vmax=30)
+	# plt.show()
